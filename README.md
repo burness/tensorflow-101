@@ -12,8 +12,12 @@ command like this:
 ## serving
 test on MLP model on mnist done
 
-download the mnist jpgs on baidun yunpan [mnist jpgs](https://pan.baidu.com/s/1o8EWkVS)
+download the mnist jpgs on baidu yunpan [mnist jpgs](https://pan.baidu.com/s/1o8EWkVS)
 
 ![](./images/mnist_server.png)
 ![](./images/mnist_client_result.png)
 
+
+
+
+Reference: [https://github.com/tobegit3hub/deep_recommend_system](https://github.com/tobegit3hub/deep_recommend_system)
