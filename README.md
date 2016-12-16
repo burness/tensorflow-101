@@ -21,3 +21,11 @@ download the mnist jpgs on baidu yunpan [mnist jpgs](https://pan.baidu.com/s/1o8
 
 
 Reference: [https://github.com/tobegit3hub/deep_recommend_system](https://github.com/tobegit3hub/deep_recommend_system)
+
+
+## finetuning and deploy model with flask
+
+![](./images/flask_with_pretrain_model.png)
+![](./images/flask_with_pretrain_model_00.png)
+
+In folder finetuning, we use tf.slim to finetuning the pretrain model (I use the same method in my porn detection) and use flask to buid a very simple inference system.
