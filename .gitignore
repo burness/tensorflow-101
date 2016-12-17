@@ -1,3 +1,8 @@
 algorithm/mnist/
 mnist_jpgs/
 mnist_jpgs.zip
+.vscode/
+*.pyc
+train
+.DS_Store
+inception_v3.ckpt
