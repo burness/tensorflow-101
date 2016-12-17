@@ -8,6 +8,7 @@ from nets.inception_v3 import *
 import numpy as np
 import os
 import time
+import uuid
 """
 Load a tensorflow model and make it available as a REST service
 """
@@ -103,6 +104,11 @@ def upload_file():
         file = request.files['file']
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
+            # add the filename to uuid
+            file_type = filename.split('.')[1]
+            file_name_ori = filename.split('.')[0]
+            filename = str(uuid.uuid4()) + '.' + file_type
+
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             return redirect(url_for('result', filename=filename))
     return '''
