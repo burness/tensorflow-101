@@ -19,4 +19,8 @@ In flask_inference.py, we build an serving model with flask. It is too simple to
 the model is hold in your memory when the scrip is runing.
 
 
+I deploy a image classification in [demo page](http://demo.duanshishi.com). Feel free to try.
+
+
+
 

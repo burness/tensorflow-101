@@ -29,3 +29,9 @@ Reference: [https://github.com/tobegit3hub/deep_recommend_system](https://github
 ![](./images/flask_with_pretrain_model_00.png)
 
 In folder finetuning, we use tf.slim to finetuning the pretrain model (I use the same method in my porn detection) and use flask to buid a very simple inference system.
+
+
+
+## Inference Demo
+
+I deploy a image classification in [demo page](http://demo.duanshishi.com). It is based on Tensorflow and Flask. Feel free to try.

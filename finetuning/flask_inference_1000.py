@@ -1,6 +1,7 @@
 import tensorflow as tf
 from functools import wraps
-from flask import Flask, request, jsonify
+from flask import Flask, render_template, request, redirect, url_for, send_from_directory, jsonify
+from werkzeug.utils import secure_filename
 slim = tf.contrib.slim
 from PIL import Image
 from nets.inception_v3 import *
@@ -11,6 +12,9 @@ import time
 Load a tensorflow model and make it available as a REST service
 """
 app = Flask(__name__)
+UPLOAD_FOLDER = './uploads'
+ALLOWED_EXTENSIONS = set(['jpg', 'png', 'jpeg'])
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
 class myTfModel(object):
@@ -79,14 +83,59 @@ def get_label(sysnet_file, metadata_file):
     return index_label
 
 
-@app.route('/model', methods=['GET', 'POST'])
-def apply_model():
-    image = request.args.get('image')
+# @app.route('/model', methods=['GET', 'POST'])
+# def apply_model():
+#     image = request.args.get('image')
+#     predict_values = mymodel.execute(image, batch_size=1)
+#     predicted_class_top5 = reversed(np.argsort(predict_values[0])[-5:])
+#     index_label = get_label('./sysnet.txt', 'imagenet_metadata.txt')
+#     labels = [index_label[i] for i in predicted_class_top5]
+#     return jsonify(result=','.join(labels))
+
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+
+
+@app.route('/', methods=['GET', 'POST'])
+def upload_file():
+    if request.method == 'POST':
+        file = request.files['file']
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            return redirect(url_for('result', filename=filename))
+    return '''
+    <!doctype html>
+    <title>Upload new File</title>
+    <h1>Upload new File</h1>
+    <form action="" method=post enctype=multipart/form-data>
+      <p><input type=file name=file>
+         <input type=submit value=Upload>
+    </form>    
+    '''
+
+
+from flask import send_from_directory
+
+
+@app.route('/uploads/<filename>', methods=['GET', 'POST'])
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+
+@app.route('/result/<filename>', methods=['GET'])
+def result(filename):
+    image = os.path.join(UPLOAD_FOLDER, filename)
     predict_values = mymodel.execute(image, batch_size=1)
     predicted_class_top5 = reversed(np.argsort(predict_values[0])[-5:])
     index_label = get_label('./sysnet.txt', 'imagenet_metadata.txt')
     labels = [index_label[i] for i in predicted_class_top5]
-    return jsonify(result=','.join(labels))
+    print labels
+
+    result = 'inference result: ' + ','.join(labels)
+    return "<!doctype html><title>Upload new File</title><h1>Result</h1><img height ='400', width='400' src='/uploads/{0}'></img></br>{1}".format(
+        filename, result)
 
 
 if __name__ == '__main__':
