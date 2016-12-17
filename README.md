@@ -33,5 +33,5 @@ In folder finetuning, we use tf.slim to finetuning the pretrain model (I use the
 
 
 ## Inference Demo
-
+![](./images/demo_result.png)
 I deploy a image classification in [demo page](http://demo.duanshishi.com). It is based on Tensorflow and Flask. Feel free to try.
