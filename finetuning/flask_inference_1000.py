@@ -130,10 +130,9 @@ def result(filename):
     predict_values = mymodel.execute(image, batch_size=1)
     predicted_class_top5 = reversed(np.argsort(predict_values[0])[-5:])
     index_label = get_label('./sysnet.txt', 'imagenet_metadata.txt')
-    labels = [index_label[i] for i in predicted_class_top5]
-    print labels
+    labels = [index_label[i - 1] for i in predicted_class_top5]
 
-    result = 'inference result: ' + ','.join(labels)
+    result = 'inference result: ' + '\n'.join(labels)
     return "<!doctype html><title>Upload new File</title><h1>Result</h1><img height ='400', width='400' src='/uploads/{0}'></img></br>{1}".format(
         filename, result)
 

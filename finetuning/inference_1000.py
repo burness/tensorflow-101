@@ -50,7 +50,8 @@ def inference(image):
 if __name__ == "__main__":
     sample_images = './cat.jpeg'
     image, predict = inference(sample_images)
+
     print np.argmax(predict[0])
     index_label = get_label('./sysnet.txt', 'imagenet_metadata.txt')
     print 'the image {0}, predict label is {1}'.format(
-        sample_images, index_label[np.argmax(predict[0])])
+        sample_images, index_label[np.argmax(predict[0] - 1)])
