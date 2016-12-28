@@ -1,6 +1,8 @@
 import tensorflow as tf
 slim = tf.contrib.slim
 from PIL import Image
+import sys
+sys.path.append("..")
 from nets.inception_v3 import *
 import numpy as np
 import os
@@ -8,7 +10,7 @@ import time
 
 
 def inference(image):
-    checkpoint_dir = './train_log'
+    checkpoint_dir = '../train_log'
     input_tensor = tf.placeholder(tf.float32, [None, 299, 299, 3])
     sess = tf.Session()
     arg_scope = inception_v3_arg_scope()

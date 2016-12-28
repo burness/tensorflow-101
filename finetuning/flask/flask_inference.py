@@ -3,6 +3,8 @@ from functools import wraps
 from flask import Flask, request, jsonify
 slim = tf.contrib.slim
 from PIL import Image
+import sys
+sys.path.append("..")
 from nets.inception_v3 import *
 import numpy as np
 import os

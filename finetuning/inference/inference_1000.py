@@ -1,6 +1,8 @@
 import tensorflow as tf
 slim = tf.contrib.slim
 from PIL import Image
+import sys
+sys.path.append("..")
 from nets.inception_v3 import *
 import numpy as np
 import os
@@ -26,8 +28,8 @@ def get_label(sysnet_file, metadata_file):
 
 
 def inference(image):
-    checkpoint_dir = './pretrain_model'
-    checkpoint_file = './pretrain_model/inception_v3.ckpt'
+    checkpoint_dir = '../pretrain_model'
+    checkpoint_file = '../pretrain_model/inception_v3.ckpt'
     input_tensor = tf.placeholder(tf.float32, [None, 299, 299, 3])
     sess = tf.Session()
     arg_scope = inception_v3_arg_scope()

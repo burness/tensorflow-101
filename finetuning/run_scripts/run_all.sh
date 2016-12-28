@@ -1,3 +1,4 @@
+cd ..
 TRAIN_DIR=./train_log
 DATASET_DIR=./tfrecords
 PRETRAINED_CHECKPOINT_DIR=./pretrain_model

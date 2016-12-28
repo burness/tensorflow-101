@@ -4,11 +4,14 @@ from flask import Flask, render_template, request, redirect, url_for, send_from_
 from werkzeug.utils import secure_filename
 slim = tf.contrib.slim
 from PIL import Image
-from nets.inception_v3 import *
 import numpy as np
 import os
 import time
 import uuid
+import sys
+sys.path.append("..")
+from nets.inception_v3 import *
+
 """
 Load a tensorflow model and make it available as a REST service
 """
