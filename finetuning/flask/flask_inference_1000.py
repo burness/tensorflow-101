@@ -66,7 +66,7 @@ class myTfModel(object):
     # print 'a image take time {0}'.format(time.time() - start)
 
 
-mymodel = myTfModel('./pretrain_model/inception_v3.ckpt')
+mymodel = myTfModel('../pretrain_model/inception_v3.ckpt')
 
 
 def get_label(sysnet_file, metadata_file):
