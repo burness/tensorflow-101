@@ -40,4 +40,4 @@ I deploy a image classification in [demo page](http://demo.duanshishi.com). It i
 
 ![](http://images.duanshishi.com/mac_blogs_chinese_rec_example.png)
 
-You can get the detailed introductation in []()
+You can get the detailed introductation in [TensorFlow与中文手写汉字识别](http://hacker.duanshishi.com/?p=1753)
