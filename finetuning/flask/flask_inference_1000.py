@@ -144,7 +144,29 @@ def result(filename):
     result = 'inference result: ' + '\n'.join(labels)
     return "<!doctype html><title>Upload new File</title><h1>Result</h1><img height ='400', width='400' src='/uploads/{0}'></img></br>{1}".format(
         filename, result)
+from werkzeug.wsgi import LimitedStream
 
+
+class StreamConsumingMiddleware(object):
+
+    def __init__(self, app):
+        self.app = app
+
+    def __call__(self, environ, start_response):
+        stream = LimitedStream(environ['wsgi.input'],
+                               int(environ['CONTENT_LENGTH'] or 0))
+        environ['wsgi.input'] = stream
+        app_iter = self.app(environ, start_response)
+        try:
+            stream.exhaust()
+            for event in app_iter:
+                yield event
+        finally:
+            if hasattr(app_iter, 'close'):
+                app_iter.close()
+
+
+app.wsgi_app = StreamConsumingMiddleware(app.wsgi_app)
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=80)
+    app.run(debug=True, threaded=True, host='0.0.0.0', port=80)
