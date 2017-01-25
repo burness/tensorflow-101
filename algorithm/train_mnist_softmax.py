@@ -4,9 +4,7 @@ from __future__ import print_function
 
 import argparse
 import sys
-
-import input_data
-
+from tensorflow.contrib.learn.python.learn.datasets.mnist import read_data_sets
 import tensorflow as tf
 import time
 
@@ -17,7 +15,7 @@ tf.flags.DEFINE_string("data_dir", "./mnist",
 
 
 def main(_):
-  mnist = input_data.read_data_sets(FLAGS.data_dir, one_hot=True)
+  mnist = read_data_sets(FLAGS.data_dir, one_hot=True)
   x = tf.placeholder(tf.float32, [None, 784])
   W = tf.Variable(tf.random_normal([784, 10]))
   b = tf.Variable(tf.random_normal([10]))

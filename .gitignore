@@ -6,3 +6,4 @@ mnist_jpgs.zip
 train
 .DS_Store
 inception_v3.ckpt
+GAN/Acgan/asset/*
