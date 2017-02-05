@@ -50,17 +50,4 @@ run_generator(a,
               fig_name='fake.png')
 
 # classified image
-run_generator(np.arange(10).repeat(10), np.ones(batch_size) * 0.5, np.ones(batch_size) * 0.5)
-
-#
-# draw sample by continuous division
-#
-
-for i in range(10):
-    run_generator(np.ones(batch_size, dtype=np.int32) * i,
-                  np.linspace(0, 1, 10).repeat(10),
-                  np.expand_dims(np.linspace(0, 1, 10), axis=1).repeat(10, axis=1).T.flatten(),
-                  fig_name='sample%d.png' % i)
-
-
-
+run_generator(np.arange(10).repeat(10), np.linspace(0, 1, 10).repeat(10), np.expand_dims(np.linspace(0, 1, 10), axis=1).repeat(10, axis=1).T.flatten(),)

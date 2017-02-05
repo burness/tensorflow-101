@@ -98,8 +98,8 @@ print 'loss_con', loss_con.get_shape()
 
 
 
-train_disc, disc_global_step = optim(loss_d + loss_c + loss_con, lr=0.0001, category='discriminator')
-train_gen, gen_global_step = optim(loss_g + loss_c + loss_con, lr=0.001, category='generator')
+train_disc, disc_global_step = optim(loss_d + loss_c + loss_con, lr=0.0001, optim = 'Adm', category='discriminator')
+train_gen, gen_global_step = optim(loss_g + loss_c + loss_con, lr=0.001, optim = 'Adm', category='generator')
 init = tf.global_variables_initializer()
 saver = tf.train.Saver()
 print train_gen
