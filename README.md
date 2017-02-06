@@ -55,3 +55,5 @@ Infogan result:
 ![](./images/infogan-result.png)
 AC-GAN result:
 ![](./images/acgan-result.png)
+
+You can get detailed information in [GAN的理解与TF的实现](http://hacker.duanshishi.com/?p=1766)
