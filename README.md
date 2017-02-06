@@ -41,3 +41,16 @@ I deploy a image classification in [demo page](http://demo.duanshishi.com). It i
 ![](http://images.duanshishi.com/mac_blogs_chinese_rec_example.png)
 
 You can get the detailed introductation in [TensorFlow与中文手写汉字识别](http://hacker.duanshishi.com/?p=1753)
+
+## GAN
+### AC-GAN and Info-GAN in TensorFlow
+The project in GAN includ AC-GAN and Info-GAN:
+
+ - AC-GAN ![](./images/ac-gan-fig-01.png)
+ - Info-GAN ![](./images/infogan-fig-01.png)
+
+### Result
+Infogan result:
+
+![](./images/infogan-result.png)
+![](./images/acgan-result.png)
