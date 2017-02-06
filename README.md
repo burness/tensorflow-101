@@ -53,4 +53,5 @@ The project in GAN includ AC-GAN and Info-GAN:
 Infogan result:
 
 ![](./images/infogan-result.png)
+AC-GAN result:
 ![](./images/acgan-result.png)
