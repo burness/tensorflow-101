@@ -53,7 +53,9 @@ The project in GAN includ AC-GAN and Info-GAN:
 Infogan result:
 
 ![](./images/infogan-result.png)
+![](./images/infogan-result-01.png)
 AC-GAN result:
 ![](./images/acgan-result.png)
+![](./images/acgan-result-01.png)
 
 You can get detailed information in [GAN的理解与TF的实现](http://hacker.duanshishi.com/?p=1766)
