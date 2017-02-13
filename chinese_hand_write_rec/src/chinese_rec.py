@@ -84,37 +84,35 @@ class DataIterator:
 
 
 def build_graph(top_k):
-    with tf.device('/cpu:0'):
-        keep_prob = tf.placeholder(dtype=tf.float32, shape=[], name='keep_prob')
-        images = tf.placeholder(dtype=tf.float32, shape=[None, 64, 64, 1], name='image_batch')
-        labels = tf.placeholder(dtype=tf.int64, shape=[None], name='label_batch')
+    # with tf.device('/cpu:0'):
+    keep_prob = tf.placeholder(dtype=tf.float32, shape=[], name='keep_prob')
+    images = tf.placeholder(dtype=tf.float32, shape=[None, 64, 64, 1], name='image_batch')
+    labels = tf.placeholder(dtype=tf.int64, shape=[None], name='label_batch')
 
-        conv_1 = slim.conv2d(images, 64, [3, 3], 1, padding='SAME', scope='conv1')
-        max_pool_1 = slim.max_pool2d(conv_1, [2, 2], [2, 2], padding='SAME')
-        conv_2 = slim.conv2d(max_pool_1, 128, [3, 3], padding='SAME', scope='conv2')
-        max_pool_2 = slim.max_pool2d(conv_2, [2, 2], [2, 2], padding='SAME')
-        conv_3 = slim.conv2d(max_pool_2, 256, [3, 3], padding='SAME', scope='conv3')
-        max_pool_3 = slim.max_pool2d(conv_3, [2, 2], [2, 2], padding='SAME')
+    conv_1 = slim.conv2d(images, 64, [3, 3], 1, padding='SAME', scope='conv1')
+    max_pool_1 = slim.max_pool2d(conv_1, [2, 2], [2, 2], padding='SAME')
+    conv_2 = slim.conv2d(max_pool_1, 128, [3, 3], padding='SAME', scope='conv2')
+    max_pool_2 = slim.max_pool2d(conv_2, [2, 2], [2, 2], padding='SAME')
+    conv_3 = slim.conv2d(max_pool_2, 256, [3, 3], padding='SAME', scope='conv3')
+    max_pool_3 = slim.max_pool2d(conv_3, [2, 2], [2, 2], padding='SAME')
 
-        flatten = slim.flatten(max_pool_3)
-        fc1 = slim.fully_connected(slim.dropout(flatten, keep_prob), 1024,
-                                   activation_fn=tf.nn.tanh, scope='fc1')
-        logits = slim.fully_connected(slim.dropout(fc1, keep_prob), FLAGS.charset_size,
-                                      activation_fn=None, scope='fc2')
+    flatten = slim.flatten(max_pool_3)
+    fc1 = slim.fully_connected(slim.dropout(flatten, keep_prob), 1024, activation_fn=tf.nn.tanh, scope='fc1')
+    logits = slim.fully_connected(slim.dropout(fc1, keep_prob), FLAGS.charset_size, activation_fn=None, scope='fc2')
         # logits = slim.fully_connected(flatten, FLAGS.charset_size, activation_fn=None, reuse=reuse, scope='fc')
-        loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(logits, labels))
-        accuracy = tf.reduce_mean(tf.cast(tf.equal(tf.argmax(logits, 1), labels), tf.float32))
+    loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(logits, labels))
+    accuracy = tf.reduce_mean(tf.cast(tf.equal(tf.argmax(logits, 1), labels), tf.float32))
 
-        global_step = tf.get_variable("step", [], initializer=tf.constant_initializer(0.0), trainable=False)
-        rate = tf.train.exponential_decay(2e-4, global_step, decay_steps=2000, decay_rate=0.97, staircase=True)
-        train_op = tf.train.AdamOptimizer(learning_rate=rate).minimize(loss, global_step=global_step)
-        probabilities = tf.nn.softmax(logits)
+    global_step = tf.get_variable("step", [], initializer=tf.constant_initializer(0.0), trainable=False)
+    rate = tf.train.exponential_decay(2e-4, global_step, decay_steps=2000, decay_rate=0.97, staircase=True)
+    train_op = tf.train.AdamOptimizer(learning_rate=rate).minimize(loss, global_step=global_step)
+    probabilities = tf.nn.softmax(logits)
 
-        tf.summary.scalar('loss', loss)
-        tf.summary.scalar('accuracy', accuracy)
-        merged_summary_op = tf.summary.merge_all()
-        predicted_val_top_k, predicted_index_top_k = tf.nn.top_k(probabilities, k=top_k)
-        accuracy_in_top_k = tf.reduce_mean(tf.cast(tf.nn.in_top_k(probabilities, labels, top_k), tf.float32))
+    tf.summary.scalar('loss', loss)
+    tf.summary.scalar('accuracy', accuracy)
+    merged_summary_op = tf.summary.merge_all()
+    predicted_val_top_k, predicted_index_top_k = tf.nn.top_k(probabilities, k=top_k)
+    accuracy_in_top_k = tf.reduce_mean(tf.cast(tf.nn.in_top_k(probabilities, labels, top_k), tf.float32))
 
     return {'images': images,
             'labels': labels,
@@ -177,8 +175,8 @@ def train():
                     feed_dict = {graph['images']: test_images_batch,
                                  graph['labels']: test_labels_batch,
                                  graph['keep_prob']: 1.0}
-                    accuracy_test, test_summary, step = sess.run(
-                        [graph['accuracy'], graph['merged_summary_op'], graph['global_step']],
+                    accuracy_test, test_summary = sess.run(
+                        [graph['accuracy'], graph['merged_summary_op']],
                         feed_dict=feed_dict)
                     test_writer.add_summary(test_summary, step)
                     logger.info('===============Eval a batch=======================')
