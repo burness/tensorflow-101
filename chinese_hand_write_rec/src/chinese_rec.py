@@ -154,9 +154,7 @@ def train():
 
         logger.info(':::Training Start:::')
         try:
-            i = 0
             while not coord.should_stop():
-                i += 1
                 start_time = time.time()
                 train_images_batch, train_labels_batch = sess.run([train_images, train_labels])
                 feed_dict = {graph['images']: train_images_batch,
@@ -263,7 +261,7 @@ def inference(image):
     temp_image = temp_image.reshape([-1, 64, 64, 1])
     with tf.Session() as sess:
         logger.info('========start inference============')
-        images = tf.placeholder(dtype=tf.float32, shape=[None, 64, 64, 1])
+        # images = tf.placeholder(dtype=tf.float32, shape=[None, 64, 64, 1])
         # Pass a shadow label 0. This label will not affect the computation graph.
         graph = build_graph(top_k=3)
         saver = tf.train.Saver()
@@ -271,7 +269,7 @@ def inference(image):
         if ckpt:
             saver.restore(sess, ckpt)
         predict_val, predict_index = sess.run([graph['predicted_val_top_k'], graph['predicted_index_top_k']],
-                                              feed_dict={images: temp_image})
+                                              feed_dict={graph['images']: temp_image, graph['keep_prob']: 1.0})
     return predict_val, predict_index
 
 
