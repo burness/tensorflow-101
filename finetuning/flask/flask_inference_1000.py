@@ -53,18 +53,10 @@ class myTfModel(object):
         im = Image.open(data).resize((299, 299))
         im = np.array(im) / 255.0
         im = im.reshape(-1, 299, 299, 3)
-        # ims.append(im)
-        # ims = np.array(ims)
-        # print ims.shape
         start = time.time()
         predict_values, logit_values = sess.run(
             [end_points['Predictions'], logits], feed_dict={input_tensor: im})
         return predict_values
-        # print 'the porn score with the {0} is {1} '.format(
-
-    # data, predict_values[1][1])
-    # print 'a image take time {0}'.format(time.time() - start)
-
 
 mymodel = myTfModel('../pretrain_model/inception_v3.ckpt')
 
@@ -86,20 +78,8 @@ def get_label(sysnet_file, metadata_file):
     index_label.append("i don't know")
     return index_label
 
-
-# @app.route('/model', methods=['GET', 'POST'])
-# def apply_model():
-#     image = request.args.get('image')
-#     predict_values = mymodel.execute(image, batch_size=1)
-#     predicted_class_top5 = reversed(np.argsort(predict_values[0])[-5:])
-#     index_label = get_label('./sysnet.txt', 'imagenet_metadata.txt')
-#     labels = [index_label[i] for i in predicted_class_top5]
-#     return jsonify(result=','.join(labels))
-
-
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
-
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
@@ -148,7 +128,6 @@ from werkzeug.wsgi import LimitedStream
 
 
 class StreamConsumingMiddleware(object):
-
     def __init__(self, app):
         self.app = app
 
