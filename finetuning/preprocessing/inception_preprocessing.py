@@ -195,7 +195,7 @@ def preprocess_for_train(image,
         # the coordinates are ordered [ymin, xmin, ymax, xmax].
         image_with_box = tf.image.draw_bounding_boxes(
             tf.expand_dims(image, 0), bbox)
-        tf.image_summary('image_with_bounding_boxes', image_with_box)
+        tf.summary.image('image_with_bounding_boxes', image_with_box)
 
         # distorted_image, distorted_bbox = distorted_bounding_box_crop(image, bbox)
         # Restore the shape since the dynamic slice based upon the bbox_size loses
@@ -218,7 +218,7 @@ def preprocess_for_train(image,
             lambda x, method: tf.image.resize_images(x, [height, width], method=method),
             num_cases=num_resize_cases)
 
-        tf.image_summary('cropped_resized_image',
+        tf.summary.image('cropped_resized_image',
                          tf.expand_dims(distorted_image, 0))
 
         # Randomly flip the image horizontally.
@@ -230,10 +230,10 @@ def preprocess_for_train(image,
             lambda x, ordering: distort_color(x, ordering, fast_mode),
             num_cases=4)
 
-        tf.image_summary('final_distorted_image',
+        tf.summary.image('final_distorted_image',
                          tf.expand_dims(distorted_image, 0))
-        distorted_image = tf.sub(distorted_image, 0.5)
-        distorted_image = tf.mul(distorted_image, 2.0)
+        distorted_image = tf.subtract(distorted_image, 0.5)
+        distorted_image = tf.multiply(distorted_image, 2.0)
         return distorted_image
 
 
@@ -274,8 +274,8 @@ def preprocess_for_eval(image, height, width, central_fraction=1.0,
             image = tf.image.resize_bilinear(
                 image, [height, width], align_corners=False)
             image = tf.squeeze(image, [0])
-        image = tf.sub(image, 0.5)
-        image = tf.mul(image, 2.0)
+        image = tf.subtract(image, 0.5)
+        image = tf.multiply(image, 2.0)
         return image
 
 

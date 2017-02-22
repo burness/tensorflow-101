@@ -20,9 +20,9 @@ target_cval_1 = tf.placeholder(dtype=tf.float32, shape=batch_size)
 target_cval_2 = tf.placeholder(dtype=tf.float32, shape=batch_size)
 
 z = tf.one_hot(tf.ones(batch_size, dtype=tf.int32) * target_num, depth=cat_dim)
-z = tf.concat(z.get_shape().ndims-1, [z, tf.expand_dims(target_cval_1, -1), tf.expand_dims(target_cval_2, -1)])
+z = tf.concat(axis=z.get_shape().ndims-1, values=[z, tf.expand_dims(target_cval_1, -1), tf.expand_dims(target_cval_2, -1)])
 
-z = tf.concat(z.get_shape().ndims-1, [z, tf.random_normal((batch_size, rand_dim))])
+z = tf.concat(axis=z.get_shape().ndims-1, values=[z, tf.random_normal((batch_size, rand_dim))])
 
 gen = tf.squeeze(generator(z), -1)
 

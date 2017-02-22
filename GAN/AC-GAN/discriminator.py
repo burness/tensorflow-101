@@ -3,7 +3,7 @@ import tensorflow.contrib.slim as slim
 from tensorflow.python.ops import variable_scope
 
 def leaky_relu(x):
-     return tf.select(tf.greater(x, 0), x, 0.01 * x)
+     return tf.where(tf.greater(x, 0), x, 0.01 * x)
 
 def discriminator(tensor, num_category=10, batch_size=32, num_cont=2):
     """

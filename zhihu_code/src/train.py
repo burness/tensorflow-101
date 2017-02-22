@@ -115,8 +115,8 @@ def network():
     out7_argmax = tf.expand_dims(tf.argmax(out7, 1), 1)
     out8_argmax = tf.expand_dims(tf.argmax(out8, 1), 1)
     out9_argmax = tf.expand_dims(tf.argmax(out9, 1), 1)
-    out_score = tf.concat([out0, out1, out2, out3, out4, out5, out6, out7, out8, out9], axis=1)
-    out_final = tf.cast(tf.concat([out0_argmax, out1_argmax, out2_argmax, out3_argmax, out4_argmax, out5_argmax, out6_argmax, out7_argmax, out8_argmax, out9_argmax], axis=1), tf.int32)
+    out_score = tf.concat(axis=[out0, out1, out2, out3, out4, out5, out6, out7, out8, out9], axis=1)
+    out_final = tf.cast(tf.concat(axis=[out0_argmax, out1_argmax, out2_argmax, out3_argmax, out4_argmax, out5_argmax, out6_argmax, out7_argmax, out8_argmax, out9_argmax], axis=1), tf.int32)
 
     loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=out0, labels=tf.one_hot(labels[:,0],depth=2)))
     loss1 = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=out1, labels=tf.one_hot(labels[:,1],depth=2)))

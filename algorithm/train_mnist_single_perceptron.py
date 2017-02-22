@@ -25,11 +25,11 @@ def main(_):
   y = tf.add(tf.matmul(lay1, W2),b2)
 
   y_ = tf.placeholder(tf.float32, [None, 10])
-  cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(y, y_))
+  cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=y, labels=y_))
   train_step = tf.train.GradientDescentOptimizer(0.5).minimize(cross_entropy)
 
   sess = tf.InteractiveSession()
-  tf.initialize_all_variables().run()
+  tf.global_variables_initializer().run()
   for index in range(10000): 
     # print('process the {}th batch'.format(index))
     start_train = time.time()

@@ -41,7 +41,7 @@ def main(_):
     y = inference(input)
     y_ = tf.placeholder(tf.float32, [None, 10])
     global_step = tf.Variable(0, name='global_step', trainable=False)
-    cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(y, y_))
+    cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=y, labels=y_))
     train_step = tf.train.GradientDescentOptimizer(0.2).minimize(cross_entropy, global_step=global_step)
     correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
@@ -52,20 +52,20 @@ def main(_):
     inference_result = tf.argmax(inference_softmax, 1)
     checkpoint_dir = FLAGS.checkpoint_dir
     checkpoint_file = checkpoint_dir + "/checkpoint.ckpt"
-    init_op = tf.initialize_all_variables()
+    init_op = tf.global_variables_initializer()
     # add the tensors to the tensorboard logs
-    tf.scalar_summary('loss', cross_entropy)
-    tf.scalar_summary('accuracy', accuracy)
+    tf.summary.scalar('loss', cross_entropy)
+    tf.summary.scalar('accuracy', accuracy)
     saver = tf.train.Saver()
     keys_placeholder = tf.placeholder("float")
     keys = tf.identity(keys_placeholder)
     tf.add_to_collection("input", json.dumps({'key': keys_placeholder.name, 'features': inference_features.name}))
     tf.add_to_collection('output', json.dumps({'key': keys.name, 'softmax': inference_softmax.name, 'prediction': inference_result.name}))
     with tf.Session() as sess:
-        summary_op = tf.merge_all_summaries()
+        summary_op = tf.summary.merge_all()
         tensorboard_dir = FLAGS.tensorboard_dir
-        writer = tf.train.SummaryWriter(tensorboard_dir, sess.graph)
-        tf.initialize_all_variables().run()
+        writer = tf.summary.FileWriter(tensorboard_dir, sess.graph)
+        tf.global_variables_initializer().run()
         for index in range(10000):
             print('process the {}th batch'.format(index))
             start_train = time.time()

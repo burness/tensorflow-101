@@ -48,7 +48,7 @@ y_fake = tf.zeros(batch_size)
 
 
 # discriminator labels ( half 1s, half 0s )
-y_disc = tf.concat(0, [y, y * 0])
+y_disc = tf.concat(axis=0, values=[y, y * 0])
 
 #
 # create generator
@@ -63,7 +63,7 @@ z_cat = tf.cast(z_cat, tf.int32)
 z_con = tf.random_normal((batch_size, con_dim))
 z_rand = tf.random_normal((batch_size, rand_dim))
 
-z = tf.concat(1, [tf.one_hot(z_cat, depth = cat_dim), z_con, z_rand])
+z = tf.concat(axis=1, values=[tf.one_hot(z_cat, depth = cat_dim), z_con, z_rand])
 
 
 # generator network
@@ -80,15 +80,15 @@ disc_real, _, _ = discriminator(x)
 disc_fake, cat_fake, con_fake = discriminator(gen)
 
 # discriminator loss
-loss_d_r = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(disc_real, y_real))
-loss_d_f = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(disc_fake, y_fake))
+loss_d_r = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=disc_real, labels=y_real))
+loss_d_f = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=disc_fake, labels=y_fake))
 loss_d = (loss_d_r + loss_d_f) / 2
 print 'loss_d', loss_d.get_shape()
 # generator loss
-loss_g = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(disc_fake, y_real))
+loss_g = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=disc_fake, labels=y_real))
 
 # categorical factor loss
-loss_c = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(cat_fake, z_cat))
+loss_c = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(logits=cat_fake, labels=z_cat))
 
 # continuous factor loss
 loss_con =tf.reduce_mean(tf.square(con_fake-z_con))
