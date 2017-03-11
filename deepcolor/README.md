@@ -1,8 +1,8 @@
 # deepcolor: Automatic coloring and shading of manga-style lineart, using Tensorflow + cGANs
 
-![](http://kvfrans.com/content/images/2017/03/Screen-Shot-2017-03-01-at-11-09-09-PM-1.png)
+![]()
 
-![](http://kvfrans.com/content/images/2017/03/Screen-Shot-2017-03-01-at-11-09-13-PM.png)
+![]()
 
 Setup:
 ```
@@ -22,3 +22,7 @@ Try the demo:
 http://color.kvfrans.com
 
 Code based off [this pix2pix implementation](https://github.com/yenchenlin/pix2pix-tensorflow).
+
+
+------------
+Reference from the [deep color](https://github.com/kvfrans/deepcolor)
