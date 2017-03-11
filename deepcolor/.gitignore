@@ -1,0 +1,13 @@
+imgs/
+results_straight/
+results_colortrain/
+oldres/
+checkpoint/
+checkpoint_old/
+main.pyc
+utils.pyc
+server.pyc
+ops.pyc
+cv.py
+cv2.so
+*.pyc
