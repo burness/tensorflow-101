@@ -1,0 +1,166 @@
+<style>
+    body {
+        background-color: ivory;
+    }
+    #wrapper {
+        position:relative;
+        width:512px;
+        height:512px;
+    }
+    #line, #color {
+        position:absolute;
+        top:0px;
+        left:0px;
+        border:1px solid green;
+        width:100%;
+        height:100%;
+    }
+    #color {
+        border:2px solid red;
+    }
+
+    body{ background-color: white; }
+
+    div.colorpicker{
+        min-width:300px;
+    }
+
+    section * {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        -o-user-select: none;
+        user-select: none;
+    }
+    section {
+        display:inline-block;
+    }
+    .colorwheel #colorwheel {
+        height:200px;
+        width:200px;
+        cursor: cell;
+    }
+    .colorwheel #colorblock {
+        width: 97%;
+        height:25px;
+        margin:0px auto;
+        border:1px solid black;
+        margin-left:8%;
+    }
+    .colorwheel #surface {
+        display:block;
+    }
+
+    #gamma_wrapper {
+        background-color: white;
+        padding:2px;
+        border:1px solid black;
+        cursor:vertical-text;
+    }
+
+    #gamma_slider {
+        width:10px;
+        height:180px;
+        cursor: vertical-text;
+        background: -moz-linear-gradient(top,  rgba(0,0,0,0) 0%, rgba(0,0,0,0.12) 57%, rgba(0,0,0,0.18) 62%, rgba(0,0,0,0.65) 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(0,0,0,0)), color-stop(57%,rgba(0,0,0,0.12)), color-stop(62%,rgba(0,0,0,0.18)), color-stop(100%,rgba(0,0,0,0.65))); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  rgba(0,0,0,0) 0%,rgba(0,0,0,0.12) 57%,rgba(0,0,0,0.18) 62%,rgba(0,0,0,0.65) 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  rgba(0,0,0,0) 0%,rgba(0,0,0,0.12) 57%,rgba(0,0,0,0.18) 62%,rgba(0,0,0,0.65) 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  rgba(0,0,0,0) 0%,rgba(0,0,0,0.12) 57%,rgba(0,0,0,0.18) 62%,rgba(0,0,0,0.65) 100%); /* IE10+ */
+    background: linear-gradient(to bottom,  rgba(0,0,0,0) 0%,rgba(0,0,0,0.12) 57%,rgba(0,0,0,0.18) 62%,rgba(0,0,0,0.65) 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00000000', endColorstr='#a6000000',GradientType=0 ); /* IE6-9 */
+    }
+</style>
+
+
+
+
+<!-- Latest compiled and minified JavaScript -->
+
+<html lang="en">
+    <head>
+        <title>the color move</title>
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+        <link href="colorpicker/css/bootstrap-colorpicker.min.css" rel="stylesheet">
+
+        <!-- Custom styles for this template -->
+        <!-- <link href="css/grid.css" rel="stylesheet"> -->
+    </head>
+
+    <body>
+        <div class="container">
+            <div class="page-header">
+                <center>
+                    <h1>deepcolor</h1>
+                    <p class="lead">utilize the power of <a href="http://kvfrans.com/generative-adversial-networks-explained/">mathematical magic</a> to automatically color a sketch or lineart</p>
+                    <a class="btn btn-lg btn-primary" href="/" role="button">About</a>
+                </center>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <h3>Step 1: Create a line image</h3>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Option 1: Upload an image to automatically detect edges</h3>
+                        </div>
+                        <div class="panel-body">
+                            <table>
+                                <tr>
+                                    <td>
+                                        <form class="form-inline" action="/upload_toline" method="post" enctype="multipart/form-data" id="uploadform">
+                                            <label class="btn btn-default btn-file">
+                                                Upload <input type="file" name="img" id="fileselect" style="display:none;"/>
+                                            </label>
+                                        </form>
+                                    </td>
+                                    <td style="padding-left: 15px;">
+                                        or try one of the examples<br>
+                                        <img id="sanaebutton" width=64 height=64 src="images/1_line.png" />
+                                        <img id="armsbutton" width=64 height=64 src="images/a_line.png" />
+                                        <img id="picassobutton" width=64 height=64 src="images/3_line.png" />
+                                    </td>
+                                </tr>
+                            </table>
+
+                        </div>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Option 2: Draw it</h3>
+                        </div>
+                        <div class="panel-body">
+                            <button class="btn btn-default" id="pen">Pen (D)</button>
+                            <button class="btn btn-default" id="eraser">Eraser (E)</button>
+                        </div>
+                    </div>
+                    <h3>Step 2: Add color hints (messy is fine)</h3>
+
+                    <div id="cp7" class="inl-bl"></div>
+                    <style>
+                        .inl-bl {
+                            display: inline-block;
+                        }
+                    </style>
+
+                    <h3>Step 3: Colorize!</h3>
+                    <button class="btn btn-primary" id="submit">Submit</button>
+                </div>
+                <div class="col-md-6">
+                    <div id="wrapper">
+                        <canvas id="color" width=512 height=512></canvas>
+                        <canvas id="line" width=512 height=512></canvas>
+                    </div>
+                    <div id="result">
+                    </div>
+                </div>
+            </div>
+            <hr />
+        </div> <!-- /container -->
+    </body>
+</html>
+
+<script src="jquery-1.11.2.min.js"></script>
+<script src="colorpicker/js/bootstrap-colorpicker.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="sketch.js"></script>

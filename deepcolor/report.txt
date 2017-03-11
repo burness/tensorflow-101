@@ -1,0 +1,126 @@
+--------------------------------------------------------------------------------
+Processing file 'main.py'
+ outputting to 'main.py'
+--------------------------------------------------------------------------------
+
+'main.py' Line 66
+--------------------------------------------------------------------------------
+
+Added keyword 'logits' to reordered function 'tf.nn.sigmoid_cross_entropy_with_logits'
+Added keyword 'labels' to reordered function 'tf.nn.sigmoid_cross_entropy_with_logits'
+
+    Old:         self.g_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(disc_fake_logits, tf.ones_like(disc_fake_logits))) \
+                                                                                                                                           
+    New:         self.g_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=disc_fake_logits, labels=tf.ones_like(disc_fake_logits))) \
+                                                                                      ~~~~~~~                  ~~~~~~~                                   
+
+'main.py' Line 182
+--------------------------------------------------------------------------------
+
+Renamed function 'tf.initialize_all_variables' to 'tf.global_variables_initializer'
+
+    Old:         self.sess.run(tf.initialize_all_variables())
+                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~    
+    New:         self.sess.run(tf.global_variables_initializer())
+                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~    
+
+'main.py' Line 104
+--------------------------------------------------------------------------------
+
+Added keyword 'concat_dim' to reordered function 'tf.concat'
+Added keyword 'values' to reordered function 'tf.concat'
+
+    Old:         d4 = tf.concat(3, [d4, e4])
+                                             
+    New:         d4 = tf.concat(axis=3, values=[d4, e4])
+                                ~~~~~   ~~~~~~~          
+
+'main.py' Line 109
+--------------------------------------------------------------------------------
+
+Added keyword 'concat_dim' to reordered function 'tf.concat'
+Added keyword 'values' to reordered function 'tf.concat'
+
+    Old:         d5 = tf.concat(3, [d5, e3])
+                                             
+    New:         d5 = tf.concat(axis=3, values=[d5, e3])
+                                ~~~~~   ~~~~~~~          
+
+'main.py' Line 47
+--------------------------------------------------------------------------------
+
+Added keyword 'concat_dim' to reordered function 'tf.concat'
+Added keyword 'values' to reordered function 'tf.concat'
+
+    Old:         combined_preimage = tf.concat(3, [self.line_images, self.color_images])
+                                                                                         
+    New:         combined_preimage = tf.concat(axis=3, values=[self.line_images, self.color_images])
+                                               ~~~~~   ~~~~~~~                                       
+
+'main.py' Line 114
+--------------------------------------------------------------------------------
+
+Added keyword 'concat_dim' to reordered function 'tf.concat'
+Added keyword 'values' to reordered function 'tf.concat'
+
+    Old:         d6 = tf.concat(3, [d6, e2])
+                                             
+    New:         d6 = tf.concat(axis=3, values=[d6, e2])
+                                ~~~~~   ~~~~~~~          
+
+'main.py' Line 53
+--------------------------------------------------------------------------------
+
+Added keyword 'concat_dim' to reordered function 'tf.concat'
+Added keyword 'values' to reordered function 'tf.concat'
+
+    Old:         self.real_AB = tf.concat(3, [combined_preimage, self.real_images])
+                                                                                    
+    New:         self.real_AB = tf.concat(axis=3, values=[combined_preimage, self.real_images])
+                                          ~~~~~   ~~~~~~~                                       
+
+'main.py' Line 54
+--------------------------------------------------------------------------------
+
+Added keyword 'concat_dim' to reordered function 'tf.concat'
+Added keyword 'values' to reordered function 'tf.concat'
+
+    Old:         self.fake_AB = tf.concat(3, [combined_preimage, self.generated_images])
+                                                                                         
+    New:         self.fake_AB = tf.concat(axis=3, values=[combined_preimage, self.generated_images])
+                                          ~~~~~   ~~~~~~~                                            
+
+'main.py' Line 119
+--------------------------------------------------------------------------------
+
+Added keyword 'concat_dim' to reordered function 'tf.concat'
+Added keyword 'values' to reordered function 'tf.concat'
+
+    Old:         d7 = tf.concat(3, [d7, e1])
+                                             
+    New:         d7 = tf.concat(axis=3, values=[d7, e1])
+                                ~~~~~   ~~~~~~~          
+
+'main.py' Line 62
+--------------------------------------------------------------------------------
+
+Added keyword 'logits' to reordered function 'tf.nn.sigmoid_cross_entropy_with_logits'
+Added keyword 'labels' to reordered function 'tf.nn.sigmoid_cross_entropy_with_logits'
+
+    Old:         self.d_loss_real = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(disc_true_logits, tf.ones_like(disc_true_logits)))
+                                                                                                                                              
+    New:         self.d_loss_real = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=disc_true_logits, labels=tf.ones_like(disc_true_logits)))
+                                                                                           ~~~~~~~                  ~~~~~~~                                 
+
+'main.py' Line 63
+--------------------------------------------------------------------------------
+
+Added keyword 'logits' to reordered function 'tf.nn.sigmoid_cross_entropy_with_logits'
+Added keyword 'labels' to reordered function 'tf.nn.sigmoid_cross_entropy_with_logits'
+
+    Old:         self.d_loss_fake = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(disc_fake_logits, tf.zeros_like(disc_fake_logits)))
+                                                                                                                                               
+    New:         self.d_loss_fake = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=disc_fake_logits, labels=tf.zeros_like(disc_fake_logits)))
+                                                                                           ~~~~~~~                  ~~~~~~~                                  
+
+
