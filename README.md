@@ -59,3 +59,16 @@ AC-GAN result:
 ![](./images/acgan-result-01.png)
 
 You can get detailed information in [GAN的理解与TF的实现](http://hacker.duanshishi.com/?p=1766)
+
+
+## DeepColor
+
+The images from [safebooru.org](http://safebooru.org), you can download from the baidu yunpan [https://pan.baidu.com/s/1c1HOIHU](https://pan.baidu.com/s/1c1HOIHU).
+
+![](./images/mac_blogs_deepcolor-01.png)
+
+The results:
+![](./images/mac_blogs_deepcolor-03.png)
+
+
+details in [CGAN之deepcolor实践](http://www.duanshishi.com/?p=1791)
