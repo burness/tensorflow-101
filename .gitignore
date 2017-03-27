@@ -7,3 +7,4 @@ train
 .DS_Store
 inception_v3.ckpt
 GAN/*/asset/*
+data/images/*.png
