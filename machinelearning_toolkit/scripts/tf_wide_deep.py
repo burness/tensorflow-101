@@ -1,6 +1,7 @@
 import tensorflow as tf
 import pandas as pd
 from tensorflow.contrib.learn.python.learn.estimators import svm
+tf.logging.set_verbosity(tf.logging.INFO)
 
 
 # logger = logging.getLogger('Training a classifier using wide and/or deep method')
@@ -352,19 +353,24 @@ deep_columns = [
 ]
 model_dir = FLAGS.model_dir
 train_step = FLAGS.train_steps
+validation_monitor = tf.contrib.learn.monitors.ValidationMonitor(
+    input_fn = eval_input_fn,
+    every_n_steps=20)
 if FLAGS.classifier_mode == 'wide':
-    model = tf.contrib.learn.LinearClassifier(model_dir=model_dir, feature_columns=wide_columns)
+    model = tf.contrib.learn.LinearClassifier(model_dir=model_dir, 
+        feature_columns=wide_columns, config=tf.contrib.learn.RunConfig(save_checkpoints_secs=None, save_checkpoints_steps=20))
 elif FLAGS.classifier_mode == 'deep':
-    model = tf.contrib.learn.DNNClassifier(model_dir=model_dir, feature_columns=deep_columns, hidden_units=[128, 64])
+    model = tf.contrib.learn.DNNClassifier(model_dir=model_dir, feature_columns=deep_columns, hidden_units=[128, 64], config=tf.contrib.learn.RunConfig(save_checkpoints_secs=None, save_checkpoints_steps=20))
 else:
     model = tf.contrib.learn.DNNLinearCombinedClassifier(
         model_dir=model_dir,
         linear_feature_columns=wide_columns,
         dnn_feature_columns=deep_columns,
         dnn_hidden_units=[128, 64],
-        fix_global_step_increment_bug=True)
+        fix_global_step_increment_bug=True,
+        config=tf.contrib.learn.RunConfig(save_checkpoints_secs=None, save_checkpoints_steps=20))
 
-model.fit(input_fn=train_input_fn, steps=train_step)
+model.fit(input_fn=train_input_fn, steps=train_step, monitors=[validation_monitor])
 results = model.evaluate(input_fn=eval_input_fn, steps=1)
 for key in results:
     print "%s: %s" % (key, results[key])
