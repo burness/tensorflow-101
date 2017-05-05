@@ -1,10 +1,25 @@
 import tensorflow as tf
 import pandas as pd
-import numpy as np
-from tensorflow.contrib.tensor_forest.client import random_forest
-# categorical base columns
+from tensorflow.contrib.learn.python.learn.estimators import svm
+
+
+# logger = logging.getLogger('Training a classifier using wide and/or deep method')
+# logger.setLevel(logging.INFO)
+# formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+# ch = logging.StreamHandler()
+# ch.setLevel(logging.INFO)
+# logger.addHandler(ch)
+
+
+tf.app.flags.DEFINE_string('classifier_mode', 'wide', 'Running mode. One of {"wide", "deep", "all"}')
+tf.app.flags.DEFINE_integer('train_steps', 200, 'the step of train the model')
+tf.app.flags.DEFINE_string('model_dir', '../wide_model_dir', 'the model dir')
+FLAGS = tf.app.flags.FLAGS
+
+
 class_of_worker = tf.contrib.layers.sparse_column_with_hash_bucket(
     column_name='class_of_worker', hash_bucket_size=1000)
+
 detailed_industry_recode = tf.contrib.layers.sparse_column_with_hash_bucket(
     column_name='detailed_industry_recode', hash_bucket_size=1000)
 
@@ -36,7 +51,6 @@ sex = tf.contrib.layers.sparse_column_with_keys(
 
 member_of_labor_union = tf.contrib.layers.sparse_column_with_hash_bucket(
     column_name='member_of_labor_union', hash_bucket_size=1000)
-
 reason_for_unemployment = tf.contrib.layers.sparse_column_with_hash_bucket(
     column_name='reason_for_unemployment', hash_bucket_size=1000)
 
@@ -156,7 +170,6 @@ FEATURE_COLUMNS = [
     fill_inc_questionnaire_for_veteran_admin, veterans_benefits,
     weeks_worked_in_year, year
 ]
-# FEATURE_COLUMNS = [age, detailed_occupation_recode, education, wage_per_hour]
 
 LABEL_COLUMN = 'label'
 CONTINUOUS_COLUMNS = [
@@ -208,17 +221,19 @@ df_train[LABEL_COLUMN] = (
 df_test[LABEL_COLUMN] = (
     df_test[LABEL_COLUMN].apply(lambda x: '+' in x)).astype(int)
 # print df_train.dtypes
-dtypess = df_train.dtypes
+# dtypes = df_train.dtypes
 
 # print dtypess[CATEGORICAL_COLUMNS]
 
-print df_train.head(5)
-print df_test.head(5)
+# print df_train.head(5)
+# print df_test.head(5)
 
 
 def input_fn(df):
+    # Creates a dictionary mapping from each continuous feature column name (k) to
+    # # the values of that column stored in a constant Tensor.
     continuous_cols = {
-        k: tf.expand_dims(tf.constant(df[k].astype(np.float32).values), 1)
+        k: tf.constant(df[k].values)
         for k in CONTINUOUS_COLUMNS
     }
     # Creates a dictionary mapping from each categorical feature column name (k)
@@ -232,7 +247,6 @@ def input_fn(df):
     }
     # Merges the two dictionaries into one.
     feature_cols = dict(continuous_cols.items() + categorical_cols.items())
-    # Add example id list
     # Converts the label column into a constant Tensor.
     label = tf.constant(df[LABEL_COLUMN].values)
     # Returns the feature columns and the label.
@@ -247,33 +261,110 @@ def eval_input_fn():
     return input_fn(df_test)
 
 
-model_dir = '../rf_model_dir'
 
-hparams = tf.contrib.tensor_forest.python.tensor_forest.ForestHParams(
-    num_trees=10,
-    max_nodes=1000,
-    num_classes=2,
-    num_features=len(CONTINUOUS_COLUMNS) + len(CATEGORICAL_COLUMNS))
-classifier = random_forest.TensorForestEstimator(hparams, model_dir=model_dir, config=tf.contrib.learn.RunConfig(save_checkpoints_secs=60))
-# monitors = [random_forest.TensorForestLossHook(10)]
-validation_metrics = {
-    "accuracy":
-    tf.contrib.learn.MetricSpec(
-        metric_fn=tf.contrib.metrics.streaming_accuracy,
-        prediction_key="predictions"),
-    "precision":
-    tf.contrib.learn.MetricSpec(
-         metric_fn=tf.contrib.metrics.streaming_precision,
-         prediction_key="predictions"),
-    "recall":
-    tf.contrib.learn.MetricSpec(
-        metric_fn=tf.contrib.metrics.streaming_recall,
-        prediction_key="predictions")
-    }
-validation_monitor = tf.contrib.learn.monitors.ValidationMonitor(input_fn=eval_input_fn, every_n_steps=50, metrics=validation_metrics,early_stopping_metric="loss",early_stopping_metric_minimize=True,early_stopping_rounds=200)
-classifier.fit(input_fn=train_input_fn, steps=200, monitors=[validation_monitor])
-results = classifier.evaluate(
-    input_fn=eval_input_fn, steps=1)
-print results
-for key in sorted(results):
-    print("%s: %s" % (key, results[key]))
+# deep columns
+"""
+age = tf.contrib.layers.real_valued_column('age')
+age_buckets = tf.contrib.layers.bucketized_column(
+    age, boundaries=[18, 25, 30, 35, 40, 45, 50, 55, 60, 65])
+wage_per_hour = tf.contrib.layers.real_valued_column('wage_per_hour')
+capital_gains = tf.contrib.layers.real_valued_column('capital_gains')
+capital_losses = tf.contrib.layers.real_valued_column('capital_losses')
+dividends_from_stocks = tf.contrib.layers.real_valued_column(
+    'dividends_from_stocks')
+instance_weight = tf.contrib.layers.real_valued_column('instance_weight')
+weeks_worked_in_year = tf.contrib.layers.real_valued_column(
+    'weeks_worked_in_year')
+num_persons_worked_for_employer = tf.contrib.layers.real_valued_column(
+    'num_persons_worked_for_employer')
+
+
+CATEGORICAL_COLUMNS = [
+    'class_of_worker', 'detailed_industry_recode',
+    'detailed_occupation_recode', 'education', 'enroll_in_edu_inst_last_wk',
+    'marital_stat', 'major_industry_code', 'major_occupation_code', 'race',
+    'hispanic_origin', 'sex', 'member_of_labor_union',
+    'reason_for_unemployment', 'full_or_part_time_employment_stat',
+    'tax_filer_stat', 'region_of_previous_residence',
+    'state_of_previous_residence', 'detailed_household_and_family_stat',
+    'detailed_household_summary_in_household', 'migration_code_change_in_msa',
+    'migration_code_change_in_reg', 'migration_code_move_within_reg',
+    'live_in_this_house_1year_ago', 'migration_prev_res_in_sunbelt',
+    'family_members_under18', 'country_of_birth_father',
+    'country_of_birth_mother', 'country_of_birth_self', 'citizenship',
+    'own_business_or_self_employed',
+    'fill_inc_questionnaire_for_veteran_admin', 'veterans_benefits', 'year'
+]
+"""
+wide_columns = [
+    class_of_worker, detailed_industry_recode,
+    detailed_occupation_recode, education, enroll_in_edu_inst_last_wk,
+    marital_stat, major_industry_code, major_occupation_code, race,
+    hispanic_origin, sex, member_of_labor_union,
+    reason_for_unemployment, full_or_part_time_employment_stat,
+    tax_filer_stat, region_of_previous_residence,
+    state_of_previous_residence, detailed_household_and_family_stat,
+    detailed_household_summary_in_household, migration_code_change_in_msa,
+    migration_code_change_in_reg, migration_code_move_within_reg,
+    live_in_this_house_1year_ago, migration_prev_res_in_sunbelt,
+    family_members_under18, country_of_birth_father,
+    country_of_birth_mother, country_of_birth_self, citizenship,
+    own_business_or_self_employed,
+    fill_inc_questionnaire_for_veteran_admin, veterans_benefits, year,
+    age_buckets, tf.contrib.layers.crossed_column(columns=[age_buckets, class_of_worker], hash_bucket_size=1000),
+    tf.contrib.layers.crossed_column(columns=[age_buckets, education], hash_bucket_size=1000)
+]
+deep_columns = [
+    age, wage_per_hour, capital_gains, capital_losses, dividends_from_stocks,
+    instance_weight, weeks_worked_in_year, num_persons_worked_for_employer,
+    tf.contrib.layers.embedding_column(detailed_industry_recode, dimension=8),
+    tf.contrib.layers.embedding_column(detailed_occupation_recode, dimension=8),
+    tf.contrib.layers.embedding_column(education, dimension=8),
+    tf.contrib.layers.embedding_column(enroll_in_edu_inst_last_wk, dimension=8),
+    tf.contrib.layers.embedding_column(marital_stat, dimension=8),
+    tf.contrib.layers.embedding_column(major_industry_code, dimension=8),
+    tf.contrib.layers.embedding_column(major_occupation_code, dimension=8),
+    tf.contrib.layers.embedding_column(race, dimension=8),
+    tf.contrib.layers.embedding_column(hispanic_origin, dimension=8),
+    tf.contrib.layers.embedding_column(member_of_labor_union, dimension=8),
+    tf.contrib.layers.embedding_column(reason_for_unemployment, dimension=8),
+    tf.contrib.layers.embedding_column(full_or_part_time_employment_stat, dimension=8),
+    tf.contrib.layers.embedding_column(tax_filer_stat, dimension=8),
+    tf.contrib.layers.embedding_column(region_of_previous_residence, dimension=8),
+    tf.contrib.layers.embedding_column(state_of_previous_residence, dimension=8),
+    tf.contrib.layers.embedding_column(detailed_household_and_family_stat, dimension=8),
+    tf.contrib.layers.embedding_column(detailed_household_summary_in_household, dimension=8),
+    tf.contrib.layers.embedding_column(migration_code_change_in_msa, dimension=8),
+    tf.contrib.layers.embedding_column(migration_code_change_in_reg, dimension=8),
+    tf.contrib.layers.embedding_column(migration_code_move_within_reg, dimension=8),
+    tf.contrib.layers.embedding_column(live_in_this_house_1year_ago, dimension=8),
+    tf.contrib.layers.embedding_column(migration_prev_res_in_sunbelt, dimension=8),
+    tf.contrib.layers.embedding_column(family_members_under18, dimension=8),
+    tf.contrib.layers.embedding_column(country_of_birth_father, dimension=8),
+    tf.contrib.layers.embedding_column(country_of_birth_mother, dimension=8),
+    tf.contrib.layers.embedding_column(country_of_birth_self, dimension=8),
+    tf.contrib.layers.embedding_column(citizenship, dimension=8),
+    tf.contrib.layers.embedding_column(own_business_or_self_employed, dimension=8),
+    tf.contrib.layers.embedding_column(fill_inc_questionnaire_for_veteran_admin, dimension=8),
+    tf.contrib.layers.embedding_column(veterans_benefits, dimension=8),
+    tf.contrib.layers.one_hot_column(sex),
+    tf.contrib.layers.one_hot_column(year)
+]
+model_dir = FLAGS.model_dir
+train_step = FLAGS.train_steps
+if FLAGS.classifier_mode == 'wide':
+    model = tf.contrib.learn.LinearClassifier(model_dir=model_dir, feature_columns=wide_columns)
+elif FLAGS.classifier_mode == 'deep':
+    model = tf.contrib.learn.DNNClassifier(model_dir=model_dir, feature_columns=deep_columns, hidden_units=[128, 64])
+else:
+    model = tf.contrib.learn.DNNLinearCombinedClassifier(
+        model_dir=model_dir,
+        linear_feature_columns=wide_columns,
+        dnn_feature_columns=deep_columns,
+        dnn_hidden_units=[128, 64],
+        fix_global_step_increment_bug=True)
+
+model.fit(input_fn=train_input_fn, steps=train_step)
+results = model.evaluate(input_fn=eval_input_fn, steps=1)
+for key in results:
+    print "%s: %s" % (key, results[key])
