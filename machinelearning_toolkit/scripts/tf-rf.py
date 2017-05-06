@@ -250,6 +250,20 @@ def eval_input_fn():
 
 
 model_dir = '../rf_model_dir'
+validation_metrics = {
+    "accuracy":
+    tf.contrib.learn.MetricSpec(
+        metric_fn=tf.contrib.metrics.streaming_accuracy,
+        prediction_key="classes"),
+    "precision":
+    tf.contrib.learn.MetricSpec(
+         metric_fn=tf.contrib.metrics.streaming_precision,
+         prediction_key="classes"),
+    "recall":
+    tf.contrib.learn.MetricSpec(
+        metric_fn=tf.contrib.metrics.streaming_recall,
+        prediction_key="classes")
+    }
 
 hparams = tf.contrib.tensor_forest.python.tensor_forest.ForestHParams(
     num_trees=10,
@@ -260,7 +274,7 @@ classifier = random_forest.TensorForestEstimator(hparams, model_dir=model_dir, c
 
 classifier.fit(input_fn=train_input_fn, steps=200)
 results = classifier.evaluate(
-    input_fn=eval_input_fn, steps=1)
+    input_fn=eval_input_fn, steps=1, metrics=validation_metrics)
 print results
 for key in sorted(results):
     print("%s: %s" % (key, results[key]))
