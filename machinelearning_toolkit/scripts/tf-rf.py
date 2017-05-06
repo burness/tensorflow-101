@@ -2,6 +2,8 @@ import tensorflow as tf
 import pandas as pd
 import numpy as np
 from tensorflow.contrib.tensor_forest.client import random_forest
+tf.logging.set_verbosity(tf.logging.INFO)
+
 # categorical base columns
 class_of_worker = tf.contrib.layers.sparse_column_with_hash_bucket(
     column_name='class_of_worker', hash_bucket_size=1000)
@@ -255,23 +257,8 @@ hparams = tf.contrib.tensor_forest.python.tensor_forest.ForestHParams(
     num_classes=2,
     num_features=len(CONTINUOUS_COLUMNS) + len(CATEGORICAL_COLUMNS))
 classifier = random_forest.TensorForestEstimator(hparams, model_dir=model_dir, config=tf.contrib.learn.RunConfig(save_checkpoints_secs=60))
-# monitors = [random_forest.TensorForestLossHook(10)]
-validation_metrics = {
-    "accuracy":
-    tf.contrib.learn.MetricSpec(
-        metric_fn=tf.contrib.metrics.streaming_accuracy,
-        prediction_key="predictions"),
-    "precision":
-    tf.contrib.learn.MetricSpec(
-         metric_fn=tf.contrib.metrics.streaming_precision,
-         prediction_key="predictions"),
-    "recall":
-    tf.contrib.learn.MetricSpec(
-        metric_fn=tf.contrib.metrics.streaming_recall,
-        prediction_key="predictions")
-    }
-validation_monitor = tf.contrib.learn.monitors.ValidationMonitor(input_fn=eval_input_fn, every_n_steps=50, metrics=validation_metrics,early_stopping_metric="loss",early_stopping_metric_minimize=True,early_stopping_rounds=200)
-classifier.fit(input_fn=train_input_fn, steps=200, monitors=[validation_monitor])
+
+classifier.fit(input_fn=train_input_fn, steps=200)
 results = classifier.evaluate(
     input_fn=eval_input_fn, steps=1)
 print results

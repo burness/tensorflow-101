@@ -353,14 +353,27 @@ deep_columns = [
 ]
 model_dir = FLAGS.model_dir
 train_step = FLAGS.train_steps
-validation_monitor = tf.contrib.learn.monitors.ValidationMonitor(
-    input_fn = eval_input_fn,
-    every_n_steps=20)
+validation_metrics = {
+    "accuracy":
+    tf.contrib.learn.MetricSpec(
+        metric_fn=tf.contrib.metrics.streaming_accuracy,
+        prediction_key="classes"),
+    "precision":
+    tf.contrib.learn.MetricSpec(
+         metric_fn=tf.contrib.metrics.streaming_precision,
+         prediction_key="classes"),
+    "recall":
+    tf.contrib.learn.MetricSpec(
+        metric_fn=tf.contrib.metrics.streaming_recall,
+        prediction_key="classes")
+    }
+validation_monitor = tf.contrib.learn.monitors.ValidationMonitor(input_fn=eval_input_fn, 
+    every_n_steps=10, metrics=validation_metrics, eval_steps=1)
 if FLAGS.classifier_mode == 'wide':
     model = tf.contrib.learn.LinearClassifier(model_dir=model_dir, 
-        feature_columns=wide_columns, config=tf.contrib.learn.RunConfig(save_checkpoints_secs=None, save_checkpoints_steps=20))
+        feature_columns=wide_columns, config=tf.contrib.learn.RunConfig(save_checkpoints_secs=60))
 elif FLAGS.classifier_mode == 'deep':
-    model = tf.contrib.learn.DNNClassifier(model_dir=model_dir, feature_columns=deep_columns, hidden_units=[128, 64], config=tf.contrib.learn.RunConfig(save_checkpoints_secs=None, save_checkpoints_steps=20))
+    model = tf.contrib.learn.DNNClassifier(model_dir=model_dir, feature_columns=deep_columns, hidden_units=[128, 64], config=tf.contrib.learn.RunConfig(save_checkpoints_secs=60))
 else:
     model = tf.contrib.learn.DNNLinearCombinedClassifier(
         model_dir=model_dir,
@@ -368,7 +381,7 @@ else:
         dnn_feature_columns=deep_columns,
         dnn_hidden_units=[128, 64],
         fix_global_step_increment_bug=True,
-        config=tf.contrib.learn.RunConfig(save_checkpoints_secs=None, save_checkpoints_steps=20))
+        config=tf.contrib.learn.RunConfig(save_checkpoints_secs=60))
 
 model.fit(input_fn=train_input_fn, steps=train_step, monitors=[validation_monitor])
 results = model.evaluate(input_fn=eval_input_fn, steps=1)
