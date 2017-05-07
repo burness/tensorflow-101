@@ -254,15 +254,18 @@ validation_metrics = {
     "accuracy":
     tf.contrib.learn.MetricSpec(
         metric_fn=tf.contrib.metrics.streaming_accuracy,
-        prediction_key="classes"),
+        prediction_key='probabilities'
+        ),
     "precision":
     tf.contrib.learn.MetricSpec(
          metric_fn=tf.contrib.metrics.streaming_precision,
-         prediction_key="classes"),
+         prediction_key='probabilities'
+         ),
     "recall":
     tf.contrib.learn.MetricSpec(
         metric_fn=tf.contrib.metrics.streaming_recall,
-        prediction_key="classes")
+        prediction_key='probabilities'
+        )
     }
 
 hparams = tf.contrib.tensor_forest.python.tensor_forest.ForestHParams(

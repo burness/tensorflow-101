@@ -205,13 +205,7 @@ df_train[LABEL_COLUMN] = (
     df_train[LABEL_COLUMN].apply(lambda x: '+' in x)).astype(int)
 df_test[LABEL_COLUMN] = (
     df_test[LABEL_COLUMN].apply(lambda x: '+' in x)).astype(int)
-# print df_train.dtypes
 dtypess = df_train.dtypes
-
-# print dtypess[CATEGORICAL_COLUMNS]
-
-# print df_train.head(5)
-# print df_test.head(5)
 
 
 def input_fn(df):
