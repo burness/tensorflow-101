@@ -19,9 +19,11 @@ from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
 from keras.utils.np_utils import to_categorical
 from keras.layers import Dense, Input, Flatten, Dropout
-from keras.layers import LSTM, MaxPooling1D, Embedding
+from keras.layers import LSTM, MaxPooling1D, Embedding, Convolution1D
 from keras.models import Model
 from keras.callbacks import TensorBoard, ModelCheckpoint, LearningRateScheduler
+# from keras.layers.merge import Concatenate
+# from keras.engine.topology import Merge
 from keras.optimizers import RMSprop,SGD
 
 reload(sys)
@@ -137,6 +139,8 @@ class cnn_text_classifier:
             key_vec = self.w2vec.get(key)
             if key_vec is not None:
                 self.embedding_matrix[v] = key_vec
+            else:
+                self.embedding_matrix[v] = np.random.rand(EMBEDDING_DIM) - 0.5
     def step_decay(self, epoch):
         drop_every = 5
         decay_rate = (0.001*np.power(0.5, np.floor((1+drop_every)/drop_every))).astype('float32')
@@ -151,8 +155,11 @@ class cnn_text_classifier:
         # train a 1D convnet with global maxpooling
         sequence_input = Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32')
         embedded_sequences = embedding_layer(sequence_input)
-
-        x = LSTM(128, dropout_W=0.2, dropout_U=0.2)(embedded_sequences)
+        x = Convolution1D(self.num_filters, 5, activation="relu")(embedded_sequences)
+        x = MaxPooling1D(5)(x)
+        x = Convolution1D(self.num_filters, 5, activation="relu")(x)
+        x = MaxPooling1D(5)(x)
+        x = LSTM(64, dropout_W=0.2, dropout_U=0.2)(x)
         preds = Dense(self.class_num, activation='softmax')(x)
         print preds.get_shape()
         rmsprop = RMSprop(lr=0.01)
@@ -162,21 +169,32 @@ class cnn_text_classifier:
     def train(self):
         self.__split_train_test()
         self.__build_network()
-        tensorboard = TensorBoard()
+        tensorboard = TensorBoard(log_dir="./logs/cnn_lstm/")
         ckpt_file = "weights.{epoch:02d}-{val_loss:.2f}.hdf5"
         model_checkpoint = ModelCheckpoint(ckpt_file)
         # print self.train_set[:128]
         # print 'train labels: ',self.train_tag[:128]
         lrate = LearningRateScheduler(self.step_decay)
-        self.model.fit(self.train_set, self.train_tag, validation_data=(self.test_set, self.test_tag),nb_epoch=20, batch_size=128, callbacks=[tensorboard, model_checkpoint,lrate])
+        self.model.fit(self.train_set, self.train_tag, validation_data=(self.test_set, self.test_tag),nb_epoch=100, batch_size=64, callbacks=[tensorboard, model_checkpoint,lrate])
         self.model.save(self.data_path.replace("all.csv","cnn.model"))
 
     def __split_train_test(self):
+        # print len(self.sequence)
+        # print self.sequence[0]
         self.data = pad_sequences(self.sequence, maxlen=MAX_SEQUENCE_LENGTH)
+        #indices = np.arange(self.data.shape[0])
+        #np.random.shuffle(indices)
+        #self.data = self.data[indices]
+        #self.labels = self.labels[indices]
+        # print "__split_train_test {0}".format(self.data.shape)
         self.train_set, self.test_set, self.train_tag, self.test_tag = train_test_split(self.data, self.labels, test_size=0.2)
         print "train_tag {0}", ' '.join(self.train_tag)[0:1000]
         self.train_tag = to_categorical(np.asarray(self.train_tag))
         self.test_tag = to_categorical(np.asarray(self.test_tag))
+        # print np.asarray(self.train_tag).shape
+
+
+
 
 if __name__ == "__main__":
     cnn_text_classifier_obj = cnn_text_classifier("../data/origin_data/all.csv")

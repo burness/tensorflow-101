@@ -26,7 +26,7 @@ from keras.layers.normalization import BatchNormalization
 # from keras.layers.merge import Concatenate
 # from keras.engine.topology import Merge
 from keras.optimizers import RMSprop
-from keras.layers import Activation, merge
+from keras.layers import Activation
 from keras.engine.topology import Merge
 
 reload(sys)
@@ -133,8 +133,6 @@ class cnn_text_classifier:
             temp_sequence = [x for x, y in self.dictionary.doc2bow(file_token)]
             self.sequence.append(temp_sequence)
 
-        # bow_vec_file = open(self.data_path.replace("all.csv","bow_vec.pl"), 'wb')
-        # print "after filter, the tokens len: {0}".format(self.dictionary.__len__())
         self.corpus_size = len(self.dictionary.token2id)
         self.embedding_matrix = np.zeros((self.corpus_size, EMBEDDING_DIM)) 
         print "corpus size: {0}".format(len(self.dictionary.token2id))
@@ -147,7 +145,7 @@ class cnn_text_classifier:
         print "enbedding_matrix len {0}".format(len(self.embedding_matrix))
         
     def step_decay(self, epoch):
-        drop_every = 5
+        drop_every = 40
         decay_rate = (0.001*np.power(0.5, np.floor((1+drop_every)/drop_every))).astype('float32')
         return decay_rate
 
@@ -162,12 +160,11 @@ class cnn_text_classifier:
         embedded_sequences = embedding_layer(sequence_input)
         conv_blocks = []
         for sz in self.filter_sizes:
-            conv = Convolution1D(self.num_filters, sz, activation="relu", padding='valid', strides=1)(embedded_sequences)
+            conv = Convolution1D(self.num_filters, sz, activation="relu")(embedded_sequences)
             conv = MaxPooling1D(2)(conv)
             conv = Flatten()(conv)
             conv_blocks.append(conv)
-        # z = Merge(mode='concat', concat_axis=1))(conv_blocks) if len(conv_blocks) > 1 else conv_blocks[0]
-        z =  Merge(conv_blocks, mode='concat') if len(conv_blocks) > 1 else conv_blocks[0]
+        z = Merge(mode='concat', concat_axis=1)(conv_blocks) if len(conv_blocks) > 1 else conv_blocks[0]
         z = Dropout(0.5)(z)
         z = Dense(self.hidden_dims, activation="relu")(z)
         preds = Dense(self.class_num, activation="softmax")(z)
@@ -178,23 +175,18 @@ class cnn_text_classifier:
     def train(self):
         self.__split_train_test()
         self.__build_network()
-        tensorboard = TensorBoard()
+        tensorboard = TensorBoard(log_dir="./logs/cnn_v2/")
         ckpt_file = "weights.{epoch:02d}-{val_loss:.2f}.hdf5"
         model_checkpoint = ModelCheckpoint(ckpt_file)
         lrate = LearningRateScheduler(self.step_decay)
-        self.model.fit(self.train_set, self.train_tag, validation_data=(self.test_set, self.test_tag),nb_epoch=20, batch_size=128, callbacks=[tensorboard, model_checkpoint, lrate])
+        self.model.fit(self.train_set, self.train_tag, validation_data=(self.test_set, self.test_tag),nb_epoch=100, batch_size=128, callbacks=[tensorboard, model_checkpoint, lrate])
         self.model.save(self.data_path.replace("all.csv","cnn.model"))
 
     def __split_train_test(self):
-        print len(self.sequence)
-        # print self.sequence[0]
         self.data = pad_sequences(self.sequence, maxlen=MAX_SEQUENCE_LENGTH)
-        # print "__split_train_test {0}".format(self.data.shape)
         self.train_set, self.test_set, self.train_tag, self.test_tag = train_test_split(self.data, self.labels, test_size=0.2)
-        # print "train_tag {0}", ' '.join(self.train_tag)[0:1000]
         self.train_tag = to_categorical(np.asarray(self.train_tag))
         self.test_tag = to_categorical(np.asarray(self.test_tag))
-        # print np.asarray(self.train_tag).shape
 
 
 

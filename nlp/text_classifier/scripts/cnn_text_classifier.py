@@ -2,6 +2,7 @@
 from dataset_helpers.cut_doc import cutDoc
 import numpy as np
 from gensim import corpora,models
+from pprint import pprint
 import traceback
 import sys
 import cPickle as pickle
@@ -20,9 +21,11 @@ from keras.utils.np_utils import to_categorical
 from keras.layers import Dense, Input, Flatten, Dropout
 from keras.layers import Convolution1D, MaxPooling1D, Embedding
 from keras.models import Model
-from keras.callbacks import TensorBoard, ModelCheckpoint, LearingRateScheduler
-from keras.optimizers import RMSprop, SGD, Adam
+from keras.callbacks import TensorBoard, ModelCheckpoint, LearningRateScheduler
 from keras.layers.normalization import BatchNormalization
+# from keras.layers.merge import Concatenate
+# from keras.engine.topology import Merge
+from keras.optimizers import RMSprop
 from keras.layers import Activation
 
 reload(sys)
@@ -39,9 +42,9 @@ class cnn_text_classifier:
         self.cut_doc_obj = cutDoc()
         self.w2v_file = W2V_FILE
         self.class_num = CLASS_NUM
-        # self.filter_sizes = (3, 8)
-        # self.num_filters = 10
-        # self.hidden_dims = 64
+        self.filter_sizes = (3, 8)
+        self.num_filters = 10
+        self.hidden_dims = 64
     
     def load_word2vec(self):
         """ load_word2vec: load the w2v model
@@ -55,12 +58,7 @@ class cnn_text_classifier:
                 word = line_list[0]
                 word_vec = np.fromstring(' '.join(line_list[1:]), dtype=float, sep=' ')
                 # print len(word_vec)
-                if word_vec.size == 200:
-                    self.w2vec[word] = word_vec
-                else:
-                    print "[load_word2vec]: some thing wrong "
-                    print "line: {0}".format(line)
-        print "self.w2vec size: {0}".format(len(self.w2vec))
+                self.w2vec[word] = word_vec
         print "Done load word2vec model"
 
     def __get_all_tokens_v2(self):
@@ -132,9 +130,10 @@ class cnn_text_classifier:
         self.sequence = []
         for file_token in self.corpus:
             temp_sequence = [x for x, y in self.dictionary.doc2bow(file_token)]
-            print temp_sequence
             self.sequence.append(temp_sequence)
-        
+
+        # bow_vec_file = open(self.data_path.replace("all.csv","bow_vec.pl"), 'wb')
+        # print "after filter, the tokens len: {0}".format(self.dictionary.__len__())
         self.corpus_size = len(self.dictionary.token2id)
         self.embedding_matrix = np.zeros((self.corpus_size, EMBEDDING_DIM)) 
         print "corpus size: {0}".format(len(self.dictionary.token2id))
@@ -144,13 +143,18 @@ class cnn_text_classifier:
                 self.embedding_matrix[v] = key_vec
             else:
                 self.embedding_matrix[v] = np.random.rand(EMBEDDING_DIM) - 0.5
-        print "embedding_matrix len {0}".format(len(self.embedding_matrix))
+        print "enbedding_matrix len {0}".format(len(self.embedding_matrix))
         
+    def step_decay(self, epoch):
+        drop_every = 5
+        decay_rate = (0.001*np.power(0.5, np.floor((1+drop_every)/drop_every))).astype('float32')
+        return decay_rate
+
     def __build_network(self):
         embedding_layer = Embedding(self.corpus_size,
                             EMBEDDING_DIM,
                             weights=[self.embedding_matrix],
-                            input_length=MAX_SEQUENCE_LENGTH, 
+                            input_length=MAX_SEQUENCE_LENGTH,
                             trainable=False)
         # train a 1D convnet with global maxpooling
         sequence_input = Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32')
@@ -169,42 +173,48 @@ class cnn_text_classifier:
         x = Convolution1D(128, 5)(x)
         x = BatchNormalization()(x)
         x = Activation('relu')(x)
-        # print "before 35 ", x.get_shape()
-        x = MaxPooling1D(15)(x)
+        print "before 35 ", x.get_shape()
+        x = MaxPooling1D(35)(x)
         x = Flatten()(x)
         # print x.shape()
 
-        x = Dense(128)(x)
-        x = BatchNormalization()(x)
-        x = Activation('relu')(x)
-        # print x.get_shape()
+        x = Dense(128, activation='relu')(x)
+        print x.get_shape()
         x = Dropout(0.5)(x)
         print x.get_shape()
         preds = Dense(self.class_num, activation='softmax')(x)
         print preds.get_shape()
-        # sgd = SGD(lr=0.01, momentum=0.2, )
-        adam = Adam(lr=0.0001)
+        # conv_blocks = []
+        # for sz in self.filter_sizes:
+        #     conv = Convolution1D(filters=self.num_filters, kernel_size=sz, activation="relu", padding='valid', strides=1)(embedded_sequences)
+        #     conv = MaxPooling1D(pool_size=2)(conv)
+        #     conv = Flatten()(conv)
+        #     conv_blocks.append(conv)
+        # z = Concatenate()(conv_blocks) if len(conv_blocks) > 1 else conv_blocks[0]
+        # z = Dropout(rate=0.5)(z)
+        # z = Dense(units=self.hidden_dims, activation="relu")(z)
+        # preds = Dense(self.class_num, activation="softmax")(z)
+        rmsprop = RMSprop(lr=0.001)
         self.model = Model(sequence_input, preds)
-        self.model.compile(loss='categorical_crossentropy', optimizer=adam, metrics=['acc'])
+        self.model.compile(loss='categorical_crossentropy', optimizer=rmsprop, metrics=['acc'])
 
     def train(self):
         self.__split_train_test()
         self.__build_network()
-        tensorboard = TensorBoard(histogram_freq=1)
+        tensorboard = TensorBoard()
         ckpt_file = "weights.{epoch:02d}-{val_loss:.2f}.hdf5"
         model_checkpoint = ModelCheckpoint(ckpt_file)
-        self.model.fit(self.train_set, self.train_tag, validation_data=(self.test_set, self.test_tag),nb_epoch=50, batch_size=64, callbacks=[tensorboard, model_checkpoint])
+        lrate = LearningRateScheduler(self.step_decay)
+        self.model.fit(self.train_set, self.train_tag, validation_data=(self.test_set, self.test_tag),nb_epoch=20, batch_size=128, callbacks=[tensorboard, model_checkpoint, lrate])
         self.model.save(self.data_path.replace("all.csv","cnn.model"))
 
     def __split_train_test(self):
+        print len(self.sequence)
+        # print self.sequence[0]
         self.data = pad_sequences(self.sequence, maxlen=MAX_SEQUENCE_LENGTH)
-        indices = np.arange(self.data.shape[0])
-        np.random.shuffle(indices)
-        self.data = self.data[indices]
-        self.labels = np.asarray(self.labels)[indices]
         # print "__split_train_test {0}".format(self.data.shape)
         self.train_set, self.test_set, self.train_tag, self.test_tag = train_test_split(self.data, self.labels, test_size=0.2)
-        # print "train_tag {0}", ' '.join(self.train_tag)[0:1000]
+        print "train_tag {0}", ' '.join(self.train_tag)[0:1000]
         self.train_tag = to_categorical(np.asarray(self.train_tag))
         self.test_tag = to_categorical(np.asarray(self.test_tag))
         # print np.asarray(self.train_tag).shape
@@ -215,7 +225,7 @@ class cnn_text_classifier:
 if __name__ == "__main__":
     cnn_text_classifier_obj = cnn_text_classifier("../data/origin_data/all.csv")
     cnn_text_classifier_obj.load_word2vec()
-    cnn_text_classifier_obj.gen_embedding_matrix(load4file=False)
+    cnn_text_classifier_obj.gen_embedding_matrix(load4file=True)
     cnn_text_classifier_obj.train()
 
 
