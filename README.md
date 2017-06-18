@@ -72,3 +72,9 @@ The results:
 
 
 details in [CGAN之deepcolor实践](http://www.duanshishi.com/?p=1791)
+
+
+## Text Classifer
+
+You can get the detail information in [自然语言处理第一番之文本分类器](http://hacker.duanshishi.com/?p=1805).
+Classic methods such as Word Count Distribution and TF-IDF and DeepLearning Methods based CNN and C-LSTM are provided in [nlp/text_classifier](https://github.com/burness/tensorflow-101/tree/master/nlp/text_classifier)
