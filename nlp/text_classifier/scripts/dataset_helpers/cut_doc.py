@@ -9,7 +9,14 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 logger.setLevel(logging.DEBUG)
 import re
-from config import *
+import traceback
+import os
+import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
+# from ..config import *
+WORD_DICT = "/Users/burness/git_repository/dl_opensource/nlp/oxford-cs-deepnlp-2017/practical-2/data/origin_data/t_tag_infos.txt"
+
 
 class cutDoc:
     """ cut_doc: cut the document
@@ -98,13 +105,17 @@ class cutDoc:
         ]
         jieba.load_userdict(WORD_DICT)
 
-    def del_stopwords(self):
+    def del_stopwords(self, do=True):
         """
         delete the stopwords
         """
-        for word in self.cut_text:
-            # print word, word in self.stop_words
-            if word not in self.stop_words:
+        if do:
+            for word in self.cut_text:
+                # print word, word in self.stop_words
+                if word not in self.stop_words:
+                    self.tokens.append(word)
+        else:
+            for word in self.cut_text:
                 self.tokens.append(word)
     
     def is_digit(self, word):
@@ -147,7 +158,30 @@ class cutDoc:
 
 
 if __name__ == "__main__":
-    text = "位于永城芒砀山的汉高祖斩蛇雕塑众所周知，刘邦是中国历史上第一位“布衣皇帝”。河南大学文学院教授王立群认为，刘邦出身于当时的“下层社会”。刘邦的祖先，地位到底有多低下?刘邦能在7年之内亡秦灭楚，凭的是什么?史学家对他如何评价?河南商报记者姬中贵文/图布衣皇帝为建功立业，参加“公务员考试”成为亭长众所周知，刘邦是历史上第一位“布衣皇帝”。正如河南大学文学院教授王立群所说的那样，刘邦出身于当时的下层社会。发迹前，他是家乡有名的无赖，不干农活，不置产业，不爱读书，游手好闲，是父亲眼里“最不成器”的儿子。不过，因为祖上两代都乐善好施，刘邦也继承了这种侠义之风，胸襟豁达。他希望自己有朝一日出人头地，也渴望到外面的世界建功立业。于是，30岁的刘邦，参加了当时秦国组织的选拔基层地方小吏的“公务员考试”，顺利通过后，他成为泗水亭长，相当于现在的村官。如果是在太平年代，刘邦也许混一辈子，也当不上沛公(秦时的县令称为公)。然而有一些机遇，往往是以风险开头的。公元前212年，45岁的亭长刘邦押送一批徒役赶往骊山，徒役大半逃散。在刑法严酷的秦朝，失职大罪难逃一死，刘邦索性将徒役全部释放，自己也从此亡命天涯。斩蛇起义在永城芒砀山隐居三年从发迹到夺取天下，刘邦的整个人生经历，与河南不无关系。一些徒役觉得刘邦很仗义，决定跟着他亡命天涯。在前往芒砀山的路上，发生了著名的“斩蛇”事件。如今，在河南永城芒砀山附近，仍有一个“斩蛇坡”，而永城也被史学家认定为“汉兴之地”。在芒砀山，刘邦一待就是三年。公元前209年，陈胜、吴广起义，刘邦也率众返回家乡起义，被推举为“沛公”，聚集了两三千人。在当时楚地，几千人规模的反秦队伍数不胜数，刘邦决定带人投奔项梁。后来，项梁在与章邯交战时死去，楚王熊心有意削弱项羽势力，派项羽北伐进攻秦军主力，派刘邦西征关中，订立著名的“怀王之约”。刘邦在西征关中的过程中，先后占领大梁、轩辕、平阴、阳城、犨、宛、丹水等地，顺利进入关中，秦朝很快灭亡。然而，当时刘邦的势力，无法与项羽相提并论，他也没能如愿成为关中王，而是被封到较为贫瘠的巴、蜀和汉中，成为“汉王”。用人有道因人成事，也因诛杀功臣而速死后来，刘邦趁东方不平静时出动，开始了与项羽长达四年的战争，并最终取胜。公元前201年，刘邦正式称帝，国号“汉”，定都洛阳(后在娄敬的建议下迁都长安)。就这样，刘邦成了历史上第一位由平民变为皇帝的人。刘邦最终取得天下，有很大一部分原因是幸运。而他最幸运的，就是身边聚集了一大批优秀的人才。不过，这种幸运的基础，正是他用人有道。刘邦部下有著名的三杰，首推张良，次之萧何，然后是韩信。王立群认为，作为谋士，刘邦几乎所有的重大策略，都是张良帮他制定的;作为老乡、老朋友、老战友，萧何在举荐人才、经营后方等方面功不可没;而“兵仙”韩信，则帮他夺取了大半个天下。“狡兔死，走狗烹;飞鸟尽，良弓藏;敌国破，谋臣亡。”正如韩信临死前所说的那样，刘邦称帝后，为了巩固统治，将先前封的7个异姓王一一消灭。刘邦在诛杀功臣这方面，为以后的开国皇帝们开了个“坏头”。而他本人，也在亲征英布的过程中中了致命一箭，加速了自己的死亡。西汉影响西汉王朝的历史影响怎么褒扬也不为过王立群评价，刘邦做了8年皇帝，取消了秦朝的严刑峻法，制定了一系列顺应历史潮流的政策，使得民心凝聚，国家巩固。汉文帝、汉景帝在位时，实行轻徭薄赋的政策，社会经济稳步发展，文学、史学、艺术和科技等领域的成就辉煌灿烂，史称“文景之治”，奠定了汉代兴盛的基础。西汉中期，汉武帝进一步加强中央集权，并“罢黜百家，独尊儒术”，对中国两千年封建社会产生了决定性的影响;他派张骞出使西域，拓展对外交往，丝绸之路随之产生。持续了200多年的西汉王朝，对中国历史影响十分深远，以至于中华民族的主体民族就被称为汉族，常用的字也被称为汉字。诸项第一史学家认为，刘邦创造了中国历史的诸项第一：第一位由平民登上帝位的皇帝。第一位御驾亲征而统一天下的皇帝。第一位发明“招降纳叛”和“统一战线”军事战略战术的皇帝。第一位以“休养生息”为国策从而在全国大力发展经济的皇帝。第一位“释放奴婢”从而在一定程度上打击奴隶制度、解放生产力的皇帝。第一位在全国范围内实行“轻徭薄赋”政策、实行“十五税一”低税率的皇帝。第一位推行“量吏禄，度官用，以赋于民”的财政支出紧缩政策，提倡节俭的皇帝。第一位制定礼仪从而巩固皇权的皇帝。第一位下“求贤诏”广招人才的皇帝。第一位写诗的皇帝，其作品《大风歌》被誉为“千古人主第一词”。第一位祭祀孔子并重用儒生的皇帝，从而为汉朝及后世以儒家文化为主体治国思想奠定了基础。第一位以孝治理天下的皇帝。"
-    # print "/".join(cut_doc(text))
-    cut_doc_obj = cut_doc()
-    print "\\".join(cut_doc_obj.run(text))
+    cut_doc_obj = cutDoc()
+    DATA_DIR = "../../data/origin_data"
+    DATA_DIR = os.path.abspath(DATA_DIR)
+    data_path = os.path.join(DATA_DIR, "all.csv")
+    print data_path
+    fwrite = open(data_path.replace("all.csv","all_token.csv"), 'w')
+    with open(data_path, "r") as fread:
+        i = 0
+        # while True:
+        for line in fread.readlines():
+            try:
+                line_list = line.strip().split("\t")
+                print len(line_list)
+                label = line_list[0]
+                text = line_list[1]
+                # print len(text)
+                text_tokens = cut_doc_obj.run(text)
+                # print text_tokens
+                fwrite.write(' '.join(text_tokens))
+                print "processing {0}th line".format(i)
+                i+=1
+            except BaseException as e:
+                msg = traceback.format_exc()
+                print msg
+                print "=====>Read Done<======"
+                break
+    fwrite.close()

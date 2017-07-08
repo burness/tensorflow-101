@@ -16,11 +16,12 @@ logger.setLevel(logging.DEBUG)
 
 def prepare_dataset():
     dataset_info = {}
-    files = os.listdir(DATA_DIR)
+    files = os.listdir(os.path.join(DATA_DIR.replace('origin_data', 'title')))
     with open(all_text_filename, 'w') as fwrite:
         for file in files:
             i = 0
-            file_path = os.path.join(DATA_DIR, file)
+            file_path = os.path.join(
+                DATA_DIR.replace('origin_data', 'title'), file)
             logger.info("Process file {0}".format(file_path))
             with open(file_path, 'r') as fread:
                 for line in fread.readlines():
@@ -39,5 +40,26 @@ def prepare_dataset():
     print sorted_dataset_info
 
 
+def prepare_title_dataset():
+    files = os.listdir(DATA_DIR.replace('origin_data', 'title'))
+    with open(all_title_filename, 'w') as fwrite:
+        for file in files:
+            i = 0
+            file_path = os.path.join(
+                DATA_DIR.replace('origin_data', 'title'), file)
+            logger.info("Process file {0}".format(file_path))
+            with open(file_path, 'r') as fread:
+                for line in fread.readlines():
+                    i += 1
+                    line_list = line.split("|")
+                    if len(line_list) >= 3:
+                        doc_title = line.split("|")[1]
+                        w_line = str(filename_label[int(
+                            file)]) + "\t" + doc_title + '\n'
+                        fwrite.write(w_line)
+                    # data
+
+
 if __name__ == "__main__":
     prepare_dataset()
+    # prepare_title_dataset()

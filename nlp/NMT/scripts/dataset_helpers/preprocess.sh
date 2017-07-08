@@ -1,0 +1,1 @@
+python preprocess.py -train_src ../../datasets/stanford/train/small/train.en -train_tgt ../../datasets/stanford/train/small/train.vi -valid_src ../../datasets/stanford/train/small/tst2012.en -valid_tgt ../../datasets/stanford/train/small/tst2012.vi -save_data ../../datasets/stanford/demo/small

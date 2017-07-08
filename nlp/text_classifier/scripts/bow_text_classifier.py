@@ -28,7 +28,7 @@ class bow_text_classifier:
     def __get_all_tokens(self):
         """ get all tokens of the corpus
         """
-        fwrite = open(self.data_path.replace("all.csv","all_token.csv"), 'w')
+        fwrite = open(self.data_path.replace("all_title.csv","all_token.csv"), 'w')
         with open(self.data_path, "r") as fread:
             i = 0
             # while True:
@@ -70,16 +70,16 @@ class bow_text_classifier:
             file_bow = self.dictionary.doc2bow(file_token)
             self.bow.append(file_bow)
         # write the bow vec into a file
-        bow_vec_file = open(self.data_path.replace("all.csv","bow_vec.pl"), 'wb')
+        bow_vec_file = open(self.data_path.replace("all_title.csv","bow_vec.pl"), 'wb')
         pickle.dump(self.bow,bow_vec_file)
         bow_vec_file.close()
-        bow_label_file = open(self.data_path.replace("all.csv","bow_label.pl"), 'wb')
+        bow_label_file = open(self.data_path.replace("all_title.csv","bow_label.pl"), 'wb')
         pickle.dump(self.labels,bow_label_file)
         bow_label_file.close()
 
     def to_csr(self):
-        self.bow = pickle.load(open(self.data_path.replace("all.csv","bow_vec.pl"), 'rb'))
-        self.labels = pickle.load(open(self.data_path.replace("all.csv","bow_label.pl"), 'rb'))
+        self.bow = pickle.load(open(self.data_path.replace("all_title.csv","bow_vec.pl"), 'rb'))
+        self.labels = pickle.load(open(self.data_path.replace("all_title.csv","bow_label.pl"), 'rb'))
         data = []
         rows = []
         cols = []
@@ -98,13 +98,13 @@ class bow_text_classifier:
         self.train_set, self.test_set, self.train_tag, self.test_tag = train_test_split(bow_sparse_matrix, self.labels, test_size=0.2)
         print "train set shape: "
         print self.train_set.shape
-        train_set_file = open(self.data_path.replace("all.csv","bow_train_set.pl"), 'wb')
+        train_set_file = open(self.data_path.replace("all_title.csv","bow_train_set.pl"), 'wb')
         pickle.dump(self.train_set,train_set_file)
-        train_tag_file = open(self.data_path.replace("all.csv","bow_train_tag.pl"), 'wb')
+        train_tag_file = open(self.data_path.replace("all_title.csv","bow_train_tag.pl"), 'wb')
         pickle.dump(self.train_tag,train_tag_file)
-        test_set_file = open(self.data_path.replace("all.csv","bow_test_set.pl"), 'wb')
+        test_set_file = open(self.data_path.replace("all_title.csv","bow_test_set.pl"), 'wb')
         pickle.dump(self.test_set,test_set_file)
-        test_tag_file = open(self.data_path.replace("all.csv","bow_test_tag.pl"), 'wb')
+        test_tag_file = open(self.data_path.replace("all_title.csv","bow_test_tag.pl"), 'wb')
         pickle.dump(self.test_tag,test_tag_file)
     
     def train(self):
@@ -116,12 +116,13 @@ class bow_text_classifier:
         y_pred = lr_model.predict(self.test_set)
         print classification_report(self.test_tag, y_pred)
         print confusion_matrix(self.test_tag, y_pred)
+        print lr_model.score(self.test_set, self.test_tag)
         print "save the trained model to lr_model.pl"
-        joblib.dump(lr_model, self.data_path.replace("all.csv","bow_lr_model.pl")) 
+        joblib.dump(lr_model, self.data_path.replace("all_title.csv","bow_lr_model.pl")) 
 
 
 if __name__ == "__main__":
-    bow_text_classifier_obj = bow_text_classifier("../data/origin_data/all.csv")
+    bow_text_classifier_obj = bow_text_classifier("../data/origin_data/all_title.csv")
     bow_text_classifier_obj.vec()
     bow_text_classifier_obj.to_csr()
     # print len(bow_text_classifier_obj.train_set)
