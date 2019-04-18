@@ -55,7 +55,11 @@ y_disc = tf.concat(axis=0, values=[y, y * 0])
 #
 
 # get random class number
-z_cat = tf.multinomial(tf.ones((batch_size, cat_dim), dtype=tf.float32) / cat_dim, 1)
+if(int(tf.__version__.split(".")[1])<13): ### tf version < 1.13 
+    z_cat = tf.multinomial(tf.ones((batch_size, cat_dim), dtype=tf.float32) / cat_dim, 1)
+else: ### tf version >= 1.13
+    z_cat = tf.random.categorical(tf.ones((batch_size, cat_dim), dtype=tf.float32) / cat_dim, 1)
+ 
 z_cat = tf.squeeze(z_cat, -1)
 z_cat = tf.cast(z_cat, tf.int32)
 
