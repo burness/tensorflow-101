@@ -12,8 +12,7 @@ import os
 import sys
 
 
-_logger = tf.logging._logger
-_logger.setLevel(0)
+tf.logging.set_verbosity(0)
 
 
 #
