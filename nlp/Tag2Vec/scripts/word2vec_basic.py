@@ -175,7 +175,10 @@ with graph.as_default():
         valid_embeddings, normalized_embeddings, transpose_b=True)
 
     # Add variable initializer.
-    init = tf.global_variables_initializer()
+    try:
+        init = tf.global_variables_initializer()
+    except AttributeError:
+        init = tf.initialize_all_variables()
 
 # Step 5: Begin training.
 num_steps = 100001

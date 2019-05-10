@@ -148,7 +148,10 @@ class VGGATest(tf.test.TestCase):
     with self.test_session() as sess:
       inputs = tf.random_uniform((batch_size, height, width, 3))
       logits, _ = vgg.vgg_a(inputs)
-      sess.run(tf.global_variables_initializer())
+      try:
+        sess.run(tf.global_variables_initializer())
+      except AttributeError:
+        sess.run(tf.initialize_all_variables())
       output = sess.run(logits)
       self.assertTrue(output.any())
 
@@ -292,7 +295,10 @@ class VGG16Test(tf.test.TestCase):
     with self.test_session() as sess:
       inputs = tf.random_uniform((batch_size, height, width, 3))
       logits, _ = vgg.vgg_16(inputs)
-      sess.run(tf.global_variables_initializer())
+      try:
+        sess.run(tf.global_variables_initializer())
+      except AttributeError:
+        sess.run(tf.initialize_all_variables())
       output = sess.run(logits)
       self.assertTrue(output.any())
 
@@ -447,7 +453,10 @@ class VGG19Test(tf.test.TestCase):
     with self.test_session() as sess:
       inputs = tf.random_uniform((batch_size, height, width, 3))
       logits, _ = vgg.vgg_19(inputs)
-      sess.run(tf.global_variables_initializer())
+      try:
+        sess.run(tf.global_variables_initializer())
+      except AttributeError:
+        sess.run(tf.initialize_all_variables())
       output = sess.run(logits)
       self.assertTrue(output.any())
 

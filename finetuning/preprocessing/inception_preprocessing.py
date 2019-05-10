@@ -195,7 +195,11 @@ def preprocess_for_train(image,
         # the coordinates are ordered [ymin, xmin, ymax, xmax].
         image_with_box = tf.image.draw_bounding_boxes(
             tf.expand_dims(image, 0), bbox)
-        tf.summary.image('image_with_bounding_boxes', image_with_box)
+        try:
+            tf.summary.image('image_with_bounding_boxes', image_with_box)
+        except AttributeError:
+            tf.image_summary('image_with_bounding_boxes', image_with_box)
+          
 
         # distorted_image, distorted_bbox = distorted_bounding_box_crop(image, bbox)
         # Restore the shape since the dynamic slice based upon the bbox_size loses
@@ -217,9 +221,12 @@ def preprocess_for_train(image,
             image,
             lambda x, method: tf.image.resize_images(x, [height, width], method=method),
             num_cases=num_resize_cases)
-
-        tf.summary.image('cropped_resized_image',
-                         tf.expand_dims(distorted_image, 0))
+        try:
+            tf.summary.image('cropped_resized_image',
+                            tf.expand_dims(distorted_image, 0))
+        except AttributeError:
+            tf.image_summary('cropped_resized_image',
+                            tf.expand_dims(distorted_image, 0))
 
         # Randomly flip the image horizontally.
         distorted_image = tf.image.random_flip_left_right(distorted_image)
@@ -229,9 +236,12 @@ def preprocess_for_train(image,
             distorted_image,
             lambda x, ordering: distort_color(x, ordering, fast_mode),
             num_cases=4)
-
-        tf.summary.image('final_distorted_image',
-                         tf.expand_dims(distorted_image, 0))
+        try:
+            tf.summary.image('final_distorted_image',
+                            tf.expand_dims(distorted_image, 0))
+        except AttributeError:
+            tf.image_summary('final_distorted_image',
+                            tf.expand_dims(distorted_image, 0))
         distorted_image = tf.subtract(distorted_image, 0.5)
         distorted_image = tf.multiply(distorted_image, 2.0)
         return distorted_image

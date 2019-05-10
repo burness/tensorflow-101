@@ -74,8 +74,12 @@ gen = generator(z)
 
 # add image summary
 # tf.sg_summary_image(gen)
-tf.summary.image('real', x)
-tf.summary.image('fake', gen)
+try:
+    tf.summary.image('real', x)
+    tf.summary.image('fake', gen)
+except AttributeError:
+    tf.image_summary('real', x)
+    tf.image_summary('fake', gen)
 
 #
 # discriminator
@@ -98,7 +102,10 @@ loss_con =tf.reduce_mean(tf.square(con_fake-z_con))
 
 train_disc, disc_global_step = optim(loss_d + loss_c + loss_con, lr=0.0001, optim = 'Adm', category='discriminator')
 train_gen, gen_global_step = optim(loss_g + loss_c + loss_con, lr=0.001, optim = 'Adm', category='generator')
-init = tf.global_variables_initializer()
+try:
+    init = tf.global_variables_initializer()
+except AttributeError:
+    init = tf.initialize_all_variables()
 saver = tf.train.Saver()
 print train_gen
 

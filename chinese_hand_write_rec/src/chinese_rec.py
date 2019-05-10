@@ -108,9 +108,14 @@ def build_graph(top_k):
     train_op = tf.train.AdamOptimizer(learning_rate=rate).minimize(loss, global_step=global_step)
     probabilities = tf.nn.softmax(logits)
 
-    tf.summary.scalar('loss', loss)
-    tf.summary.scalar('accuracy', accuracy)
-    merged_summary_op = tf.summary.merge_all()
+    try:
+        tf.summary.scalar('loss', loss)
+        tf.summary.scalar('accuracy', accuracy)
+        merged_summary_op = tf.summary.merge_all()
+    except AttributeError:
+        tf.scalar_summary('loss', loss)
+        tf.scalar_summary('accuracy', accuracy)
+        merged_summary_op = tf.merge_all_summary()
     predicted_val_top_k, predicted_index_top_k = tf.nn.top_k(probabilities, k=top_k)
     accuracy_in_top_k = tf.reduce_mean(tf.cast(tf.nn.in_top_k(probabilities, labels, top_k), tf.float32))
 
@@ -137,7 +142,11 @@ def train():
         train_images, train_labels = train_feeder.input_pipeline(batch_size=FLAGS.batch_size, aug=True)
         test_images, test_labels = test_feeder.input_pipeline(batch_size=FLAGS.batch_size)
         graph = build_graph(top_k=1)
-        sess.run(tf.global_variables_initializer())
+        try:
+            sess.run(tf.global_variables_initializer())
+        except AttributeError:
+            sess.run(tf.initialize_all_variables())
+
         coord = tf.train.Coordinator()
         threads = tf.train.start_queue_runners(sess=sess, coord=coord)
         saver = tf.train.Saver()
@@ -204,9 +213,12 @@ def validation():
     with tf.Session() as sess:
         test_images, test_labels = test_feeder.input_pipeline(batch_size=FLAGS.batch_size, num_epochs=1)
         graph = build_graph(3)
-
-        sess.run(tf.global_variables_initializer())
-        sess.run(tf.local_variables_initializer())  # initialize test_feeder's inside state
+        try:
+            sess.run(tf.global_variables_initializer())
+            sess.run(tf.local_variables_initializer())  # initialize test_feeder's inside state
+        except AttributeError:
+            sess.run(tf.initialize_all_variables())
+            sess.run(tf.initialize_local_variables())  # initialize test_feeder's inside state
 
         coord = tf.train.Coordinator()
         threads = tf.train.start_queue_runners(sess=sess, coord=coord)
