@@ -137,7 +137,10 @@ class OverFeatTest(tf.test.TestCase):
     with self.test_session() as sess:
       inputs = tf.random_uniform((batch_size, height, width, 3))
       logits, _ = overfeat.overfeat(inputs)
-      sess.run(tf.global_variables_initializer())
+      try:
+        sess.run(tf.global_variables_initializer())
+      except AttributeError:
+        sess.run(tf.initialize_all_variables())
       output = sess.run(logits)
       self.assertTrue(output.any())
 

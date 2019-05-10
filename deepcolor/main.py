@@ -181,7 +181,11 @@ class Color():
 
     def loadmodel(self, load_discrim=True):
         self.sess = tf.Session()
-        self.sess.run(tf.global_variables_initializer())
+        try:
+            self.sess.run(tf.global_variables_initializer())
+        except AttributeError:
+            self.sess.run(tf.initialize_all_variables())
+
 
         if load_discrim:
             self.saver = tf.train.Saver()

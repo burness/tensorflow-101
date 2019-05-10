@@ -132,9 +132,14 @@ def network():
     loss_sum = tf.reduce_sum(loss_list)
     train_op = tf.train.AdamOptimizer(learning_rate=0.0001).minimize(loss_sum, global_step=global_step)
     accuracy = tf.reduce_mean(tf.cast(tf.reduce_all(tf.equal(out_final, labels), axis=1), tf.float32))
-    tf.summary.scalar('loss_sum', loss_sum)
-    tf.summary.scalar('accuracy', accuracy)
-    merged_summary_op = tf.summary.merge_all()
+    try:
+        tf.summary.scalar('loss_sum', loss_sum)
+        tf.summary.scalar('accuracy', accuracy)
+        merged_summary_op = tf.summary.merge_all()
+    except AttributeError:
+        tf.scalar_summary('loss_sum', loss_sum)
+        tf.scalar_summary('accuracy', accuracy)
+        merged_summary_op = tf.merge_all_summaries()
 
     endpoints['global_step'] = global_step
     endpoints['images'] = images
@@ -156,8 +161,14 @@ def validation():
     with tf.Session() as sess:
         test_images, test_labels = test_feeder.input_pipeline(batch_size=FLAGS.batch_size,num_epochs=1)
         endpoints = network()
-        sess.run(tf.global_variables_initializer())
-        sess.run(tf.local_variables_initializer())
+        try:
+            sess.run(tf.global_variables_initializer())
+            sess.run(tf.local_variables_initializer())
+        except:            
+            sess.run(tf.initialize_all_variables())
+            sess.run(tf.initialize_local_variables())
+
+
         coord = tf.train.Coordinator()
         threads = tf.train.start_queue_runners(sess=sess, coord=coord)
         saver = tf.train.Saver()

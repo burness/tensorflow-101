@@ -28,8 +28,12 @@ gen = tf.squeeze(generator(z), -1)
 
 def run_generator(num, x1, x2, fig_name='sample.png'):
     with tf.Session() as sess:
-        sess.run(tf.group(tf.global_variables_initializer(),
-                      tf.local_variables_initializer()))
+        try:
+                sess.run(tf.group(tf.global_variables_initializer(),
+                        tf.local_variables_initializer()))
+        except AttributeError:
+                sess.run(tf.group(tf.initialize_all_variables(),
+                        tf.initialize_local_variables()))
         saver = tf.train.Saver()
         saver.restore(sess, tf.train.latest_checkpoint('checkpoint_dir'))
         imgs = sess.run(gen, {target_num: num, target_cval_1: x1, target_cval_2:x2})

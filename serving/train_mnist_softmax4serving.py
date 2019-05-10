@@ -52,20 +52,34 @@ def main(_):
     inference_result = tf.argmax(inference_softmax, 1)
     checkpoint_dir = FLAGS.checkpoint_dir
     checkpoint_file = checkpoint_dir + "/checkpoint.ckpt"
-    init_op = tf.global_variables_initializer()
+    try:
+      init_op = tf.global_variables_initializer()
+    except AttributeError:
+      init_op = tf.initialize_all_variables()
     # add the tensors to the tensorboard logs
-    tf.summary.scalar('loss', cross_entropy)
-    tf.summary.scalar('accuracy', accuracy)
+    try:
+      tf.summary.scalar('loss', cross_entropy)
+      tf.summary.scalar('accuracy', accuracy)
+    except AttributeError:
+      tf.scalar_summary('loss', cross_entropy)
+      tf.scalar_summary('accuracy', accuracy)
+    
     saver = tf.train.Saver()
     keys_placeholder = tf.placeholder("float")
     keys = tf.identity(keys_placeholder)
     tf.add_to_collection("input", json.dumps({'key': keys_placeholder.name, 'features': inference_features.name}))
     tf.add_to_collection('output', json.dumps({'key': keys.name, 'softmax': inference_softmax.name, 'prediction': inference_result.name}))
     with tf.Session() as sess:
-        summary_op = tf.summary.merge_all()
+        try:
+          summary_op = tf.summary.merge_all()
+        except AttributeError:
+          summary_op = tf.merge_all_summaries()
         tensorboard_dir = FLAGS.tensorboard_dir
         writer = tf.summary.FileWriter(tensorboard_dir, sess.graph)
-        tf.global_variables_initializer().run()
+        try:
+          tf.global_variables_initializer().run()
+        except AttributeError:
+          tf.initialize_all_variables().run()
         for index in range(10000):
             print('process the {}th batch'.format(index))
             start_train = time.time()

@@ -56,6 +56,9 @@ def optim(loss, **kwargs):
                 try:
                     tf.summary.scalar(name + '/grad', tf.global_norm([g]))
                     tf.summary.histogram(name + '/grad-h', g)
+                except AttributeError:
+                    tf.scalar_summary(name + '/grad', tf.global_norm([g]))
+                    tf.histogram_summary(name + '/grad-h', g)
                 except:
                     pass
     global_step = tf.Variable(0, name='global_step', trainable=False)
