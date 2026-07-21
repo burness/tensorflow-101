@@ -1,4 +1,4 @@
-import collections
+import collections.abc
 import six
 import tensorflow as tf
 import sys
@@ -6,7 +6,7 @@ import sys
 
 
 
-class Opt(collections.MutableMapping):
+class Opt(collections.abc.MutableMapping):
     r"""Option utility class.
 
     This class is only internally used for sg_opt.
